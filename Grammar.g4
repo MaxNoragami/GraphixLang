@@ -36,9 +36,11 @@ conditional: 'if' expression ':' '{' statements '}'
 
 foreach_loop: 'foreach' IDENTIFIER 'in' expression ':' '{' statements '}';
 
-expression: term ((BIN_OP term)*) ;
-
-term: factor ((comparison)*) ;
+expression: logical_expr ;
+logical_expr: comparison (('and' | 'or') comparison)* ;
+comparison: additive_expr (COMP_OP additive_expr)? ;
+additive_expr: multiplicative_expr (('+' | '-') multiplicative_expr)* ;
+multiplicative_expr: factor (('*' | '/' | '%') factor)* ;
 
 factor: literal
       | IDENTIFIER
@@ -54,8 +56,6 @@ batch_items: expression | expression ',' batch_items;
 color_literal: 'rgb' '(' NUMBER ',' NUMBER ',' NUMBER ')'
              | 'rgba' '(' NUMBER ',' NUMBER ',' NUMBER ',' NUMBER ')'
              | 'hex' '(' STRING ')';
-
-comparison: expression COMP_OP expression;
 
 binary_operation: expression BIN_OP expression;
 

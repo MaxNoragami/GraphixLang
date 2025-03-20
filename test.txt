@@ -1,0 +1,8 @@
+if get width from photo > 500:
+{
+	optimized_photo = resize photo scale=80%
+}
+else:
+{
+	export resized_photo to "output/photo.jpg"
+}

@@ -1,4 +1,4 @@
-# Generated from Grammar.g4 by ANTLR 4.13.1
+# Generated from Grammar.g4 by ANTLR 4.13.2
 from antlr4 import *
 if "." in __name__:
     from .GrammarParser import GrammarParser
@@ -107,12 +107,39 @@ class GrammarListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by GrammarParser#term.
-    def enterTerm(self, ctx:GrammarParser.TermContext):
+    # Enter a parse tree produced by GrammarParser#logical_expr.
+    def enterLogical_expr(self, ctx:GrammarParser.Logical_exprContext):
         pass
 
-    # Exit a parse tree produced by GrammarParser#term.
-    def exitTerm(self, ctx:GrammarParser.TermContext):
+    # Exit a parse tree produced by GrammarParser#logical_expr.
+    def exitLogical_expr(self, ctx:GrammarParser.Logical_exprContext):
+        pass
+
+
+    # Enter a parse tree produced by GrammarParser#comparison.
+    def enterComparison(self, ctx:GrammarParser.ComparisonContext):
+        pass
+
+    # Exit a parse tree produced by GrammarParser#comparison.
+    def exitComparison(self, ctx:GrammarParser.ComparisonContext):
+        pass
+
+
+    # Enter a parse tree produced by GrammarParser#additive_expr.
+    def enterAdditive_expr(self, ctx:GrammarParser.Additive_exprContext):
+        pass
+
+    # Exit a parse tree produced by GrammarParser#additive_expr.
+    def exitAdditive_expr(self, ctx:GrammarParser.Additive_exprContext):
+        pass
+
+
+    # Enter a parse tree produced by GrammarParser#multiplicative_expr.
+    def enterMultiplicative_expr(self, ctx:GrammarParser.Multiplicative_exprContext):
+        pass
+
+    # Exit a parse tree produced by GrammarParser#multiplicative_expr.
+    def exitMultiplicative_expr(self, ctx:GrammarParser.Multiplicative_exprContext):
         pass
 
 
@@ -158,15 +185,6 @@ class GrammarListener(ParseTreeListener):
 
     # Exit a parse tree produced by GrammarParser#color_literal.
     def exitColor_literal(self, ctx:GrammarParser.Color_literalContext):
-        pass
-
-
-    # Enter a parse tree produced by GrammarParser#comparison.
-    def enterComparison(self, ctx:GrammarParser.ComparisonContext):
-        pass
-
-    # Exit a parse tree produced by GrammarParser#comparison.
-    def exitComparison(self, ctx:GrammarParser.ComparisonContext):
         pass
 
 
