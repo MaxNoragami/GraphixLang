@@ -26,6 +26,7 @@ public interface IASTVisitor
     void Visit(BinaryExpressionNode node);
     void Visit(LiteralNode node);
     void Visit(VariableReferenceNode node);
+    void Visit(OrientationNode node);
     void Visit(MetadataNode node);
 }
 
@@ -146,6 +147,17 @@ public class CropNode : ASTNode
     public string ImageIdentifier { get; set; }
     public ExpressionNode Width { get; set; }
     public ExpressionNode Height { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class OrientationNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public TokenType OrientationType { get; set; }
     
     public override void Accept(IASTVisitor visitor)
     {

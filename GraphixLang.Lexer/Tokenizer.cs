@@ -202,6 +202,9 @@ public class Tokenizer
             case "BW": return new Token(TokenType.BW, word, _line, _column - word.Length);
             case "SEPIA": return new Token(TokenType.SEPIA, word, _line, _column - word.Length);
             case "CROP": return new Token(TokenType.CROP, word, _line, _column - word.Length);
+            case "ORIENTATION": return new Token(TokenType.ORIENTATION, word, _line, _column - word.Length);
+            case "LANDSCAPE": return new Token(TokenType.LANDSCAPE, word, _line, _column - word.Length);
+            case "PORTRAIT": return new Token(TokenType.PORTRAIT, word, _line, _column - word.Length);
             case "ROTATE": return new Token(TokenType.ROTATE, word, _line, _column - word.Length);
         }
 

@@ -21,7 +21,10 @@ public enum TokenType
     BW,
     SEPIA,
     CROP,
+    ORIENTATION,
     ROTATE,
+    LANDSCAPE,
+    PORTRAIT,
 
 
     // Types

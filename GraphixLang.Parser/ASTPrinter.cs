@@ -164,6 +164,13 @@ public class ASTPrinter : IASTVisitor
         node.Height.Accept(this);
         _sb.AppendLine(")");
     }
+
+    public void Visit(OrientationNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Orientation: {node.ImageIdentifier} {GetOrientationTypeName(node.OrientationType)}");
+    }
+
     
     public void Visit(BinaryExpressionNode node)
     {
@@ -271,6 +278,16 @@ public class ASTPrinter : IASTVisitor
             case TokenType.GREATER_EQUAL: return ">=";
             case TokenType.SMALLER: return "<";
             case TokenType.SMALLER_EQUAL: return "<=";
+            default: return type.ToString();
+        }
+    }
+
+    private string GetOrientationTypeName(TokenType type)
+    {
+        switch (type)
+        {
+            case TokenType.LANDSCAPE: return "LANDSCAPE";
+            case TokenType.PORTRAIT: return "PORTRAIT";
             default: return type.ToString();
         }
     }

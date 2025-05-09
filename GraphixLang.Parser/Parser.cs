@@ -92,6 +92,8 @@ public class Parser
                 return ParseRotateStatement();
             case TokenType.CROP:
                 return ParseCropStatement();
+            case TokenType.ORIENTATION:
+                return ParseOrientationStatement();
             default:
                 throw new SyntaxError($"Unexpected token {CurrentToken.Type} at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
@@ -340,6 +342,36 @@ public class Parser
             ImageIdentifier = imageIdentifier,
             Width = width,
             Height = height
+        };
+    }
+
+    private OrientationNode ParseOrientationStatement()
+    {
+        Consume(TokenType.ORIENTATION);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Check that the next token is a valid orientation type
+        if (CurrentToken.Type != TokenType.LANDSCAPE && CurrentToken.Type != TokenType.PORTRAIT)
+        {
+            throw new SyntaxError($"Expected an orientation type (LANDSCAPE or PORTRAIT) at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        TokenType orientationType = CurrentToken.Type;
+        Consume();
+        
+        Consume(TokenType.EOL);
+        
+        return new OrientationNode
+        {
+            ImageIdentifier = imageIdentifier,
+            OrientationType = orientationType
         };
     }
 

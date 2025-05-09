@@ -7,10 +7,10 @@
         DOUBLE $size = METADATA $photo FSIZE;
         
         IF $width > $height {
-            STRING $orientation = "landscape";
+            ORIENTATION $photo LANDSCAPE;
         }
         ELSE {
-            STRING $orientation = "portrait";
+            ORIENTATION $photo PORTRAIT;
         }
         
         IF $size > 5000 {
