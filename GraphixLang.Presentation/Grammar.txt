@@ -17,7 +17,8 @@
                 <WATERMARK_OP> |
                 <STRIP_METADATA_OP> |
                 <ADD_METADATA_OP> |
-                <RENAME_OP>
+                <RENAME_OP> |
+                <EXPORT_IMG_OP>
 
 
 // From <STATEMENT>
@@ -35,6 +36,10 @@
 <IMAGE_PATH> ::= <STR_VALUE>
 
 <METADATA_OP> ::= <VAR_IDENTIFIER> <ASSIGN> <METADATA> <VAR_IDENTIFIER> <FIELD> <EOL>
+
+<EXPORT_IMG_OP> ::= <EXPORT> <VAR_IDENTIFIER> <TO> <STR_VALUE> <ORIGINAL_HANDLING> <EOL>
+
+<ORIGINAL_HANDLING> ::= <KEEP_OG> | <DELETE_OG>
 
 <STRIP_METADATA_OP> ::= <STRIP> <METADATA> <VAR_IDENTIFIER> <METADATA_STRIP_PARAMS> <EOL>
 
@@ -286,6 +291,14 @@
 <FNAME> ::= 'FNAME'
 
 <FSIZE> ::= 'FSIZE'
+
+<EXPORT> ::= 'EXPORT'
+
+<TO> ::= 'TO'
+
+<KEEP_OG> ::= 'KEEP_OG'
+
+<DELETE_OG> ::= 'DELETE_OG'
 
 <FOREACH> ::= 'FOREACH'
 
