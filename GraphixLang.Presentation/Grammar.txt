@@ -20,7 +20,8 @@
                 <RENAME_OP> |
                 <EXPORT_IMG_OP> |
                 <CONVERT_OP> |
-                <RESIZE_OP>
+                <RESIZE_OP> |
+                <COMPRESS_OP>
 
 
 // From <STATEMENT>
@@ -62,6 +63,8 @@
 <FILTER_OP> ::= <SET> <VAR_IDENTIFIER> <FILER_TYPE> <EOL>
 
 <HUE_OP> ::= <SET> <VAR_IDENTIFIER> <HUE> <INT_VALUE> <EOL>
+
+<COMPRESS_OP> ::= <COMPRESS> <VAR_IDENTIFIER> <INT_VALUE> <EOL>
 
 <CROP_OP> ::= <CROP> <VAR_IDENTIFIER> <RESOULTION> <EOL>
 
@@ -274,6 +277,8 @@
 <SMALLER_EQUAL> ::= '<='
 
 <GREATER> ::= '>'
+
+<COMPRESS> ::= 'COMPRESS'
 
 <SMALLER> ::= '<'
 

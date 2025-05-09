@@ -462,6 +462,12 @@ public class ASTPrinter : IASTVisitor
         }
     }
 
+    public void Visit(CompressNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Compress: {node.ImageIdentifier} quality: {node.Quality}");
+    }
+
     private string GetOrientationTypeName(TokenType type)
     {
         switch (type)

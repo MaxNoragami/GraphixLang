@@ -33,6 +33,7 @@ public enum TokenType
     HUE,
     RESIZE,
     RATIOFALSE,
+    COMPRESS,
 
 
     // Types

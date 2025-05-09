@@ -97,6 +97,8 @@ public class Parser
                 return ParseConvertStatement();
             case TokenType.RESIZE:
                 return ParseResizeStatement();
+            case TokenType.COMPRESS:
+                return ParseCompressStatement();
             case TokenType.STRIP:
                 if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.METADATA)
                 {
@@ -465,6 +467,44 @@ public class Parser
         {
             throw new SyntaxError($"Expected a string value or batch identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
+    }
+
+    private CompressNode ParseCompressStatement()
+    {
+        Consume(TokenType.COMPRESS);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "COMPRESS");
+        
+        if (CurrentToken.Type != TokenType.INT_VALUE)
+        {
+            throw new SyntaxError($"Expected an integer value (0-100) for compression quality at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        int quality = int.Parse(CurrentToken.Value);
+        Consume(TokenType.INT_VALUE);
+        
+        // Validate quality is within 0-100
+        if (quality < 0 || quality > 100)
+        {
+            throw new SyntaxError($"Compression quality must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new CompressNode
+        {
+            ImageIdentifier = imageIdentifier,
+            Quality = quality
+        };
     }
 
     private HueNode ParseHueStatement()

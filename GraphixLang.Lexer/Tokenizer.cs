@@ -328,6 +328,7 @@ public class Tokenizer
             case "BMP": return new Token(TokenType.BMP, word, _line, _column - word.Length);
             case "RESIZE": return new Token(TokenType.RESIZE, word, _line, _column - word.Length);
             case "RATIOFALSE": return new Token(TokenType.RATIOFALSE, word, _line, _column - word.Length);
+            case "COMPRESS": return new Token(TokenType.COMPRESS, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers

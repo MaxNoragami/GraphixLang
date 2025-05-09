@@ -40,6 +40,7 @@ public interface IASTVisitor
     void Visit(ExportNode node);
     void Visit(ConvertNode node);
     void Visit(ResizeNode node);
+    void Visit(CompressNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -117,6 +118,17 @@ public class ResizeNode : ASTNode
     public TokenType AspectRatio { get; set; }    // Only used for aspect ratio mode
     public bool MaintainAspectRatio { get; set; } // True by default, false if RATIOFALSE is specified
     public bool IsAspectRatioMode { get; set; }   // True if using aspect ratio, false if using resolution
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class CompressNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public int Quality { get; set; }  // 0-100
     
     public override void Accept(IASTVisitor visitor)
     {
