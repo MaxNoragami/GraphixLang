@@ -241,6 +241,13 @@ public class Tokenizer
             case "TO": return new Token(TokenType.TO, word, _line, _column - word.Length);
             case "OGKEEP": return new Token(TokenType.OGKEEP, word, _line, _column - word.Length);
             case "OGDELETE": return new Token(TokenType.OGDELETE, word, _line, _column - word.Length);
+            case "CONVERT": return new Token(TokenType.CONVERT, word, _line, _column - word.Length);
+            case "PNG": return new Token(TokenType.PNG, word, _line, _column - word.Length);
+            case "JPG": return new Token(TokenType.JPG, word, _line, _column - word.Length);
+            case "JPEG": return new Token(TokenType.JPEG, word, _line, _column - word.Length);
+            case "WEBP": return new Token(TokenType.WEBP, word, _line, _column - word.Length);
+            case "TIFF": return new Token(TokenType.TIFF, word, _line, _column - word.Length);
+            case "BMP": return new Token(TokenType.BMP, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers

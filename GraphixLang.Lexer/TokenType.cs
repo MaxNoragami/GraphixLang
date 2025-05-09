@@ -28,6 +28,7 @@ public enum TokenType
     ORIENTATION,
     ROTATE,
     LANDSCAPE,
+    CONVERT,
     PORTRAIT,
     HUE,
 
@@ -64,6 +65,12 @@ public enum TokenType
     ADVANCE,
     ORIGIN,
     DESCRIPTION,
+    PNG,
+    JPG,
+    JPEG,
+    WEBP,
+    TIFF,
+    BMP,
     
     // Identifier
     VAR_IDENTIFIER, // Either Batch '#' or Var '$'

@@ -18,6 +18,7 @@
         
         IF $height > $width {
             ROTATE $img RIGHT;
+            CONVERT $img TO JPEG;
         }
 
         WATERMARK $img "MY BRAND NAME" ~H000000~;

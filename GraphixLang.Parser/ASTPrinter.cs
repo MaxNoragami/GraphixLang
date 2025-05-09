@@ -397,6 +397,26 @@ public class ASTPrinter : IASTVisitor
         _sb.AppendLine($"Export: {node.ImageIdentifier} to \"{node.DestinationPath}\" {(node.KeepOriginal ? "OGKEEP" : "OGDELETE")}");
     }
 
+    public void Visit(ConvertNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Convert: {node.ImageIdentifier} to {GetFormatName(node.TargetFormat)}");
+    }
+
+    private string GetFormatName(TokenType format)
+    {
+        switch (format)
+        {
+            case TokenType.PNG: return "PNG";
+            case TokenType.JPG: return "JPG";
+            case TokenType.JPEG: return "JPEG";
+            case TokenType.WEBP: return "WEBP";
+            case TokenType.TIFF: return "TIFF";
+            case TokenType.BMP: return "BMP";
+            default: return format.ToString();
+        }
+    }
+
     private string GetOrientationTypeName(TokenType type)
     {
         switch (type)

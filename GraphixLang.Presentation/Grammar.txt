@@ -18,7 +18,8 @@
                 <STRIP_METADATA_OP> |
                 <ADD_METADATA_OP> |
                 <RENAME_OP> |
-                <EXPORT_IMG_OP>
+                <EXPORT_IMG_OP> |
+                <CONVERT_OP>
 
 
 // From <STATEMENT>
@@ -48,6 +49,10 @@
 <STRIPABLE_METADATA_TYPE> ::= <GPS> | <CAMERA> | <ADVANCE> | <ORIGIN> | <DESCRIPTION> | <TAGS> | <TITLE> | <COPYRIGHT>
 
 <METADATA_TYPE> ::= <BASIC_METADATA_TYPE> | <EXTENDED_METADATA_TYPE>
+
+<CONVERT_OP> ::= <CONVERT> <VAR_IDENTIFIER> <TO> <FORMAT_TYPE> <EOL>
+
+<FORMAT_TYPE> ::= <PNG> | <JPG> | <JPEG> | <WEBP> | <TIFF> | <BMP>
 
 <METADATA_LIST> ::= <STRIPABLE_METADATA_TYPE> | <STRIPABLE_METADATA_TYPE> <COMMA> <METADATA_LIST>
 
@@ -208,6 +213,8 @@
 
 <DESCRIPTION> ::= 'DESCRIPTION'
 
+<CONVERT> ::= 'CONVERT'
+
 <IF> ::= 'IF'
 
 <ELSE> ::= 'ELSE'
@@ -295,6 +302,20 @@
 <EXPORT> ::= 'EXPORT'
 
 <TO> ::= 'TO'
+
+<CONVERT> ::= 'CONVERT'
+
+<PNG> ::= 'PNG'
+
+<JPG> ::= 'JPG'
+
+<JPEG> ::= 'JPEG'
+
+<WEBP> ::= 'WEBP'
+
+<TIFF> ::= 'TIFF'
+
+<BMP> ::= 'BMP'
 
 <OGKEEP> ::= 'OGKEEP'
 

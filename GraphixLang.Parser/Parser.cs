@@ -93,6 +93,8 @@ public class Parser
                 return ParseRenameStatement();
             case TokenType.EXPORT:
                 return ParseExportStatement();
+            case TokenType.CONVERT:
+                return ParseConvertStatement();
             case TokenType.STRIP:
                 if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.METADATA)
                 {
@@ -175,6 +177,8 @@ public class Parser
         
         string identifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
+
+        _variableTypes[identifier] = TokenType.TYPE_IMG;
         
         Consume(TokenType.ASSIGN);
         
@@ -464,7 +468,7 @@ public class Parser
     private HueNode ParseHueStatement()
     {
         Consume(TokenType.SET);
-        
+    
         if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
         {
             throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -472,6 +476,9 @@ public class Parser
         
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "HUE");
         
         Consume(TokenType.HUE);
         
@@ -511,6 +518,9 @@ public class Parser
         
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure the target image identifier is an IMG
+        EnsureImageType(imageIdentifier, "WATERMARK");
         
         // Check if it's a text watermark or image watermark
         if (CurrentToken.Type == TokenType.STR_VALUE)
@@ -555,6 +565,9 @@ public class Parser
             string watermarkImageIdentifier = CurrentToken.Value;
             Consume(TokenType.VAR_IDENTIFIER);
             
+            // Type check: ensure the watermark source is also an IMG
+            EnsureImageType(watermarkImageIdentifier, "WATERMARK source");
+            
             if (CurrentToken.Type != TokenType.INT_VALUE)
             {
                 throw new SyntaxError($"Expected an integer value (0-255) for transparency at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -596,6 +609,8 @@ public class Parser
         
         string varIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
+
+        _variableTypes[varIdentifier] = TokenType.TYPE_IMG;
         
         Consume(TokenType.IN);
         
@@ -800,6 +815,9 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "SET");
+        
         // Check that the next token is a valid filter type
         if (CurrentToken.Type != TokenType.SHARPEN && 
             CurrentToken.Type != TokenType.NEGATIVE && 
@@ -833,6 +851,9 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "ROTATE");
+        
         // Check that the next token is a valid direction
         if (CurrentToken.Type != TokenType.RIGHT && CurrentToken.Type != TokenType.LEFT)
         {
@@ -862,6 +883,9 @@ public class Parser
         
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "CROP");
         
         Consume(TokenType.OPEN_P);
         
@@ -894,6 +918,8 @@ public class Parser
         
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
+
+        EnsureImageType(imageIdentifier, "ORIENTATION");
         
         // Check that the next token is a valid orientation type
         if (CurrentToken.Type != TokenType.LANDSCAPE && CurrentToken.Type != TokenType.PORTRAIT)
@@ -929,12 +955,8 @@ public class Parser
             
             ExpressionNode right = ParseAdditiveExpression();
             
-            left = new BinaryExpressionNode
-            {
-                Left = left,
-                Operator = op,
-                Right = right
-            };
+            // Use the new method to create a binary expression with type checking
+            left = CreateBinaryExpression(left, op, right);
         }
         
         return left;
@@ -1155,8 +1177,187 @@ public class Parser
         };
     }
 
+    private ConvertNode ParseConvertStatement()
+    {
+        Consume(TokenType.CONVERT);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "CONVERT");
+        
+        Consume(TokenType.TO);
+        
+        // Check for a valid format type
+        if (!IsImageFormatToken(CurrentToken.Type))
+        {
+            throw new SyntaxError($"Expected a valid image format (PNG, JPG, JPEG, WEBP, TIFF, BMP) at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        TokenType targetFormat = CurrentToken.Type;
+        Consume(); // Consume the format token
+        
+        Consume(TokenType.EOL);
+        
+        return new ConvertNode
+        {
+            ImageIdentifier = imageIdentifier,
+            TargetFormat = targetFormat
+        };
+    }
+
+    private bool IsImageFormatToken(TokenType type)
+    {
+        return type == TokenType.PNG ||
+            type == TokenType.JPG ||
+            type == TokenType.JPEG ||
+            type == TokenType.WEBP ||
+            type == TokenType.TIFF ||
+            type == TokenType.BMP;
+    }
+
     private void Consume()
     {
         _position++;
+    }
+
+    private void EnsureImageType(string identifier, string operation)
+    {
+        if (!_variableTypes.TryGetValue(identifier, out TokenType type))
+        {
+            throw new SyntaxError($"{operation} operation requires an image variable, but {identifier} is undefined at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        if (type != TokenType.TYPE_IMG)
+        {
+            throw new SyntaxError($"{operation} operation requires an image variable, but {identifier} is {GetTypeName(type)} at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+    }
+
+    // Helper method to get type name for error messages
+    private string GetTypeName(TokenType type)
+    {
+        switch (type)
+        {
+            case TokenType.TYPE_INT: return "INT";
+            case TokenType.TYPE_DBL: return "DOUBLE";
+            case TokenType.TYPE_STR: return "STRING";
+            case TokenType.TYPE_BOOL: return "BOOL";
+            case TokenType.TYPE_PXLS: return "PIXEL";
+            case TokenType.TYPE_IMG: return "IMG";
+            case TokenType.TYPE_BATCH: return "BATCH";
+            default: return type.ToString();
+        }
+    }
+
+    private TokenType GetExpressionType(ExpressionNode expr)
+    {
+        TokenType NormalizeType(TokenType type)
+        {
+            switch (type)
+            {
+                case TokenType.INT_VALUE: return TokenType.TYPE_INT;
+                case TokenType.DBL_VALUE: return TokenType.TYPE_DBL;
+                case TokenType.STR_VALUE: return TokenType.TYPE_STR;
+                case TokenType.BOOL_VALUE: return TokenType.TYPE_BOOL;
+                case TokenType.PXLS_VALUE: return TokenType.TYPE_PXLS;
+                default: return type;
+            }
+        }
+
+        if (expr is LiteralNode literal)
+        {
+            return NormalizeType(literal.Type);
+        }
+        else if (expr is VariableReferenceNode varRef)
+        {
+            if (_variableTypes.TryGetValue(varRef.Identifier, out TokenType type))
+            {
+                return type;
+            }
+            throw new SyntaxError($"Unknown variable: {varRef.Identifier}");
+        }
+        else if (expr is MetadataNode metaNode)
+        {
+            switch (metaNode.MetadataType)
+            {
+                case TokenType.FWIDTH:
+                case TokenType.FHEIGHT:
+                    return TokenType.TYPE_INT;
+                case TokenType.FSIZE:
+                    return TokenType.TYPE_DBL;
+                case TokenType.FNAME:
+                    return TokenType.TYPE_STR;
+                default:
+                    return TokenType.TYPE_STR;
+            }
+        }
+        
+        // For binary expressions, the result type depends on the operation
+        // This is simplified - full type checking would be more complex
+        return TokenType.TYPE_INT;
+    }
+
+    private bool AreCompatibleTypes(TokenType type1, TokenType type2)
+    {
+        // Map literal types to their corresponding variable types
+        TokenType NormalizeType(TokenType type)
+        {
+            switch (type)
+            {
+                case TokenType.INT_VALUE: return TokenType.TYPE_INT;
+                case TokenType.DBL_VALUE: return TokenType.TYPE_DBL;
+                case TokenType.STR_VALUE: return TokenType.TYPE_STR;
+                case TokenType.BOOL_VALUE: return TokenType.TYPE_BOOL;
+                case TokenType.PXLS_VALUE: return TokenType.TYPE_PXLS;
+                default: return type;
+            }
+        }
+
+        // Normalize both types
+        TokenType normalizedType1 = NormalizeType(type1);
+        TokenType normalizedType2 = NormalizeType(type2);
+        
+        // Same normalized type is always compatible
+        if (normalizedType1 == normalizedType2)
+            return true;
+        
+        // Numeric types are compatible with each other
+        bool isType1Numeric = normalizedType1 == TokenType.TYPE_INT || normalizedType1 == TokenType.TYPE_DBL || normalizedType1 == TokenType.TYPE_PXLS;
+        bool isType2Numeric = normalizedType2 == TokenType.TYPE_INT || normalizedType2 == TokenType.TYPE_DBL || normalizedType2 == TokenType.TYPE_PXLS;
+        
+        if (isType1Numeric && isType2Numeric)
+            return true;
+        
+        // Other combinations are incompatible
+        return false;
+    }
+
+    private BinaryExpressionNode CreateBinaryExpression(ExpressionNode left, TokenType op, ExpressionNode right)
+    {
+        // For comparison operators, verify that the types are compatible
+        if (IsComparisonOperator(op))
+        {
+            TokenType leftType = GetExpressionType(left);
+            TokenType rightType = GetExpressionType(right);
+            
+            if (!AreCompatibleTypes(leftType, rightType))
+            {
+                throw new SyntaxError($"Cannot compare {GetTypeName(leftType)} with {GetTypeName(rightType)} at line {CurrentToken?.Line}, column {CurrentToken?.Column}");
+            }
+        }
+        
+        return new BinaryExpressionNode
+        {
+            Left = left,
+            Operator = op,
+            Right = right
+        };
     }
 }

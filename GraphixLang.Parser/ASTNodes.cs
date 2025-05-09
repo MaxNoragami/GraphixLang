@@ -38,6 +38,7 @@ public interface IASTVisitor
     void Visit(RenameNode node);
     void Visit(RenameTermNode node);
     void Visit(ExportNode node);
+    void Visit(ConvertNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -89,6 +90,17 @@ public class ExportNode : ASTNode
     public string ImageIdentifier { get; set; }
     public string DestinationPath { get; set; }
     public bool KeepOriginal { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class ConvertNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public TokenType TargetFormat { get; set; }
     
     public override void Accept(IASTVisitor visitor)
     {
