@@ -1,0 +1,9 @@
+{
+    BATCH #mybatch = "images/";
+    FOREACH IMG $img IN #mybatch {
+        SET $img SEPIA;
+        ROTATE $img LEFT;
+        CROP $img (100, 200);
+        INT $width = METADATA $img FWIDTH;
+    }
+}

@@ -1,0 +1,20 @@
+{
+    BATCH #myBatch = "C:/images/";
+    FOREACH IMG $image IN #myBatch {
+        INT $width = 0;
+        $width = METADATA $image FWIDTH;
+        
+        IF $width > 1000 {
+            SET $image SEPIA;
+        }
+        ELIF $width >= 500 {
+            SET $image BW;
+        }
+        ELIF $width >= 300 {
+            SET $image NEGATIVE;
+        }
+        ELSE {
+            SET $image SHARPEN;
+        }
+    }
+}

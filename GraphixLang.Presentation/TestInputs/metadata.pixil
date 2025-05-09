@@ -1,0 +1,20 @@
+{
+    BATCH #photos = "C:/vacation/";
+    FOREACH IMG $photo IN #photos {
+        INT $width = METADATA $photo FWIDTH;
+        INT $height = METADATA $photo FHEIGHT;
+        STRING $name = METADATA $photo FNAME;
+        DOUBLE $size = METADATA $photo FSIZE;
+        
+        IF $width > $height {
+            STRING $orientation = "landscape";
+        }
+        ELSE {
+            STRING $orientation = "portrait";
+        }
+        
+        IF $size > 5000 {
+            CROP $photo (800, 600);
+        }
+    }
+}
