@@ -19,5 +19,8 @@
     // Apply pixelation (1-100)
     SET $photo PIXELATE 10;
 
+    // Reduce to 32 colors for a retro effect
+    QUANTIZE $photo 32;
+
     EXPORT $photo TO "C:/processed_photos/" OGKEEP;
 }

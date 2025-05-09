@@ -491,6 +491,12 @@ public class ASTPrinter : IASTVisitor
         }
     }
 
+    public void Visit(QuantizeNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Quantize: {node.ImageIdentifier} colors: {node.Colors}");
+    }
+
     public void Visit(BrightnessNode node)
     {
         AppendIndent();

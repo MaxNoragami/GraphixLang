@@ -40,6 +40,7 @@ public interface IASTVisitor
     void Visit(ExportNode node);
     void Visit(ConvertNode node);
     void Visit(ResizeNode node);
+    void Visit(QuantizeNode node);
     void Visit(CompressNode node);
     void Visit(BrightnessNode node);
     void Visit(ContrastNode node);
@@ -53,6 +54,17 @@ public interface IASTVisitor
 public class ProgramNode : ASTNode
 {
     public List<BlockNode> Blocks { get; } = new List<BlockNode>();
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class QuantizeNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public int Colors { get; set; }  // Number of colors (0-255)
     
     public override void Accept(IASTVisitor visitor)
     {

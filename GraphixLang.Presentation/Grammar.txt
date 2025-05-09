@@ -2,7 +2,8 @@
 
 <CODE_BLOCK> ::= <OPEN_BLOCK> <STATEMENTS> <CLOSE_BLOCK>
 
-<STATEMENTS> ::= <STATEMENTS> <STATEMENT> | <STATEMENT>
+<STATEMENTS> ::= <STATEMENTS> <STATEMENT> | 
+                 <STATEMENT>
 
 <STATEMENT> ::= <DECLARATION_OP> |
 				<ASSIGNMENT_OP> |
@@ -28,10 +29,9 @@
                 <NOISE_OP> |
                 <BLUR_OP> |
                 <PIXELATE_OP> |
-                <WEBOPTIMIZE_OP>
+                <WEBOPTIMIZE_OP> |
+                <QUANTIZE_OP>
 
-
-// From <STATEMENT>
 
 <DECLARATION_OP> ::= <VAR_TYPE> <VAR_IDENTIFIER> <EOL> |
 					<VAR_TYPE> <VAR_IDENTIFIER> <ASSIGN> <EXPRESSION> <EOL> |
@@ -47,27 +47,46 @@
 
 <METADATA_OP> ::= <VAR_IDENTIFIER> <ASSIGN> <METADATA> <VAR_IDENTIFIER> <FIELD> <EOL>
 
+<QUANTIZE_OP> ::= <QUANTIZE> <VAR_IDENTIFIER> <INT_VALUE> <EOL>
+
 <EXPORT_IMG_OP> ::= <EXPORT> <VAR_IDENTIFIER> <TO> <STR_VALUE> <ORIGINAL_HANDLING> <EOL>
 
-<ORIGINAL_HANDLING> ::= <OGKEEP> | <OGDELETE>
+<ORIGINAL_HANDLING> ::= <OGKEEP> | 
+                        <OGDELETE>
 
 <STRIP_METADATA_OP> ::= <STRIP> <METADATA> <VAR_IDENTIFIER> <METADATA_STRIP_PARAMS> <EOL>
 
-<METADATA_STRIP_PARAMS> ::= <ALL> | <METADATA_LIST>
+<METADATA_STRIP_PARAMS> ::= <ALL> | 
+                            <METADATA_LIST>
 
-<STRIPABLE_METADATA_TYPE> ::= <GPS> | <CAMERA> | <ADVANCE> | <ORIGIN> | <DESCRIPTION> | <TAGS> | <TITLE> | <COPYRIGHT>
+<STRIPABLE_METADATA_TYPE> ::= <GPS> | 
+                              <CAMERA> | 
+                              <ADVANCE> | 
+                              <ORIGIN> | 
+                              <DESCRIPTION> | 
+                              <TAGS> | 
+                              <TITLE> | 
+                              <COPYRIGHT>
 
 <WEBOPTIMIZE_OP> ::= <WEBOPTIMIZE> <VAR_IDENTIFIER> <WEBOPTIMIZE_MODE> <EOL>
 
-<WEBOPTIMIZE_MODE> ::= <LOSSLESS> | <LOSSY> <INT_VALUE>
+<WEBOPTIMIZE_MODE> ::= <LOSSLESS> |
+                       <LOSSY> <INT_VALUE>
 
-<METADATA_TYPE> ::= <BASIC_METADATA_TYPE> | <EXTENDED_METADATA_TYPE>
+<METADATA_TYPE> ::= <BASIC_METADATA_TYPE> | 
+                    <EXTENDED_METADATA_TYPE>
 
 <CONVERT_OP> ::= <CONVERT> <VAR_IDENTIFIER> <TO> <FORMAT_TYPE> <EOL>
 
-<FORMAT_TYPE> ::= <PNG> | <JPG> | <JPEG> | <WEBP> | <TIFF> | <BMP>
+<FORMAT_TYPE> ::= <PNG> | 
+                  <JPG> | 
+                  <JPEG> | 
+                  <WEBP> | 
+                  <TIFF> | 
+                  <BMP>
 
-<METADATA_LIST> ::= <STRIPABLE_METADATA_TYPE> | <STRIPABLE_METADATA_TYPE> <COMMA> <METADATA_LIST>
+<METADATA_LIST> ::= <STRIPABLE_METADATA_TYPE> | 
+                    <STRIPABLE_METADATA_TYPE> <COMMA> <METADATA_LIST>
 
 <ADD_METADATA_OP> ::= <ADD> <METADATA> <VAR_IDENTIFIER> <METADATA_ADD_TYPE> <STR_VALUE> <EOL>
 
@@ -99,7 +118,8 @@
 
 <CONDITIONAL_OP> ::=  <IF_BLOCK> <ELIF_PART> <ELSE_PART>
 
-<WATERMARK_OP> ::= <TEXT_WATERMARK_OP> | <IMAGE_WATERMARK_OP>
+<WATERMARK_OP> ::= <TEXT_WATERMARK_OP> | 
+                   <IMAGE_WATERMARK_OP>
 
 <TEXT_WATERMARK_OP> ::= <WATERMARK> <VAR_IDENTIFIER> <STR_VALUE> <COLOR_VALUE> <EOL>
 
@@ -107,13 +127,18 @@
 
 <RENAME_OP> ::= <RENAME> <VAR_IDENTIFIER> <RENAME_EXPRESSION> <EOL>
 
-<RENAME_EXPRESSION> ::= <RENAME_TERM> | <RENAME_EXPRESSION> <PLUS> <RENAME_TERM>
+<RENAME_EXPRESSION> ::= <RENAME_TERM> | 
+                        <RENAME_EXPRESSION> <PLUS> <RENAME_TERM>
 
-<RENAME_TERM> ::= <STR_VALUE> | <COUNTER> | <METADATA_EXPRESSION>
+<RENAME_TERM> ::= <STR_VALUE> | 
+                  <COUNTER> |
+                  <METADATA_EXPRESSION>
 
 <RESIZE_OP> ::= <RESIZE> <VAR_IDENTIFIER> <RESIZE_PARAMS> <EOL>
 
-<RESIZE_PARAMS> ::= <ASPECT_RATIO> | <RESOLUTION> | <RESOLUTION> <RATIOFALSE>
+<RESIZE_PARAMS> ::= <ASPECT_RATIO> | 
+                    <RESOLUTION> | 
+                    <RESOLUTION> <RATIOFALSE>
 
 <RESOLUTION> ::= <OPEN_P> <EXPRESSION> <COMMA> <EXPRESSION> <CLOSE_P>
 
@@ -122,11 +147,16 @@
                   <RATIO_16_10> | <RATIO_10_16> | <RATIO_21_9> | <RATIO_9_21>
 
 
-// WITHIN OPERATIONS FROM <STATEMENT>
+<BASIC_METADATA_TYPE> ::= <FWIDTH> | 
+                          <FHEIGHT> | 
+                          <FNAME> | 
+                          <FSIZE>
 
-<BASIC_METADATA_TYPE> ::= <FWIDTH> | <FHEIGHT> | <FNAME> | <FSIZE>
-
-<EXTENDED_METADATA_TYPE> ::= <GPS> | <CAMERA> | <ADVANCE> | <ORIGIN> | <DESCRIPTION>
+<EXTENDED_METADATA_TYPE> ::= <GPS> | 
+                             <CAMERA> | 
+                             <ADVANCE> | 
+                             <ORIGIN> | 
+                             <DESCRIPTION>
 
 <METADATA_EXPRESSION> ::= <METADATA> <VAR_IDENTIFIER> <METADATA_TYPE>
 
@@ -140,25 +170,38 @@
 
 <BATCH_TYPE> ::= <TYPE_BATCH>
 
-<METADATA_ADD_TYPE> ::= <TAGS> | <TITLE> | <COPYRIGHT> | <DESCRIPTION>
+<METADATA_ADD_TYPE> ::= <TAGS> | 
+                        <TITLE> | 
+                        <COPYRIGHT> | 
+                        <DESCRIPTION>
 
 <RESOLUTION> ::= <OPEN_P> <INT_VALUE> <COMMA> <INT_VALUE> <CLOSE_P>
 
-<VAR_IDENTIFIER> ::= <VAR_SYMBOL><STRING>
+<VAR_IDENTIFIER> ::= <VAR_SYMBOL> <STRING>
 
 <BATCH_IDENTIFIER> ::= <BATCH_SYMBOL><STRING>
 
-<ROTATE_ACTION> ::= <LEFT> | <RIGHT>
+<ROTATE_ACTION> ::= <LEFT> | 
+                    <RIGHT>
 
-<BATCH_EXPRESSION> ::= <BATCH_TERM> | <BATCH_EXPRESSION> <PLUS> <BATCH_TERM>
+<BATCH_EXPRESSION> ::= <BATCH_TERM> | 
+                       <BATCH_EXPRESSION> <PLUS> <BATCH_TERM>
 
-<BATCH_TERM> ::= <PATH> | <BATCH_IDENTIFIER>
+<BATCH_TERM> ::= <PATH> | 
+                 <BATCH_IDENTIFIER>
 
-<EXPRESSION> ::= <VAR_IDENTIFIER> | <BATCH_IDENTIFIER> | <PRIMITIVE_VALUE> | <EXPRESSION> <OPERATOR> <EXPRESSION>
+<EXPRESSION> ::= <VAR_IDENTIFIER> | 
+                 <BATCH_IDENTIFIER> | 
+                 <PRIMITIVE_VALUE> | 
+                 <EXPRESSION> <OPERATOR> <EXPRESSION>
 
-<OPERATOR> ::= <PLUS> | <MINUS> | <MULTIPLY> | <DIVIDE>
+<OPERATOR> ::= <PLUS> | 
+               <MINUS> | 
+               <MULTIPLY> | 
+               <DIVIDE>
 
-<COLOR_VALUE> ::= <HEX_COLOR> | <RGB_COLOR>
+<COLOR_VALUE> ::= <HEX_COLOR> | 
+                  <RGB_COLOR>
 
 <HEX_COLOR> ::= '~H' <HEX_DIGITS> '~'
 
@@ -173,18 +216,17 @@
 <DIVIDE> ::= '/'
 
 <PRIMITIVE_VALUE> ::= <INT_VALUE> |
-						<DBL_VALUE> |
-						<BOOL_VALUE> |
-						<STR_VALUE> |
-						<PXLS_VALUE>
+					  <DBL_VALUE> |
+					  <BOOL_VALUE> |
+					  <STR_VALUE> |
+					  <PXLS_VALUE>
 
 
+<ELIF_PART> ::= <EMPTY> | 
+                <ELIF_BLOCK> <ELIF_PART>
 
-// WITHIN THE <CONDITIONAL_OP>
-
-<ELIF_PART> ::= <EMPTY> | <ELIF_BLOCK> <ELIF_PART>
-
-<ELSE_PART> ::= <EMPTY> | <ELSE_BLOCK> <ELSE_PART>
+<ELSE_PART> ::= <EMPTY> | 
+                <ELSE_BLOCK> <ELSE_PART>
 
 <IF_BLOCK> ::= <IF> <CONDITION> <CODE_BLOCK>
 
@@ -192,7 +234,8 @@
 
 <ELSE_BLOCK> ::= <ELSE> <CODE_BLOCK>
 
-<CONDITION> ::= <EXPRESSION> <COMPARISON> <EXPRESSION> | <VAR_IDENTIFIER>
+<CONDITION> ::= <EXPRESSION> <COMPARISON> <EXPRESSION> | 
+                <VAR_IDENTIFIER>
 
 <COMPARISON> ::= <GREATER_EQUAL> |
 				<SMALLER_EQUAL> |
@@ -202,8 +245,6 @@
 				<NOT_EQUAL>
 
 
-// WITHIN THE OPERATIONS OF OPERATIONS FROM <STATEMENT>
-
 <FILER_TYPE> ::= <SEPIA> |
 				<BW> |
 				<NEGATIVE> |
@@ -212,8 +253,6 @@
 <ORIENTATION_TYPE> ::= <LANDSCAPE> |
                        <PORTRAIT>
 
-
-// OTHERS
 
 <SEPIA> ::= 'SEPIA'
 
@@ -254,6 +293,8 @@
 <ALL> ::= 'ALL'
 
 <TAGS> ::= 'TAGS'
+
+<QUANTIZE> ::= 'QUANTIZE'
 
 <TITLE> ::= 'TITLE'
 

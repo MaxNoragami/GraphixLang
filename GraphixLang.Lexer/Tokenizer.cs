@@ -352,6 +352,7 @@ public class Tokenizer
             case "WEBOPTIMIZE": return new Token(TokenType.WEBOPTIMIZE, word, _line, _column - word.Length);
             case "LOSSLESS": return new Token(TokenType.LOSSLESS, word, _line, _column - word.Length);
             case "LOSSY": return new Token(TokenType.LOSSY, word, _line, _column - word.Length);
+            case "QUANTIZE": return new Token(TokenType.QUANTIZE, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers

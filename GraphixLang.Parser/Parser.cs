@@ -99,6 +99,8 @@ public class Parser
                 return ParseConvertStatement();
             case TokenType.RESIZE:
                 return ParseResizeStatement();
+            case TokenType.QUANTIZE:
+                return ParseQuantizeStatement();
             case TokenType.COMPRESS:
                 return ParseCompressStatement();
             case TokenType.STRIP:
@@ -180,6 +182,46 @@ public class Parser
         {
             Identifier = batchIdentifier,
             Expression = expression  // Updated to store the full expression
+        };
+    }
+
+    private QuantizeNode ParseQuantizeStatement()
+    {
+        Consume(TokenType.QUANTIZE);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "QUANTIZE");
+        
+        // Check that the next token is a valid integer value
+        if (CurrentToken.Type != TokenType.INT_VALUE)
+        {
+            throw new SyntaxError($"Expected an integer value (0-255) for color count at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        // Parse the colors value
+        int colors = int.Parse(CurrentToken.Value);
+        Consume(TokenType.INT_VALUE);
+        
+        // Validate that the colors value is in the range 0-255
+        if (colors < 0 || colors > 255)
+        {
+            throw new SyntaxError($"Color count must be between 0 and 255 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new QuantizeNode
+        {
+            ImageIdentifier = imageIdentifier,
+            Colors = colors
         };
     }
 
