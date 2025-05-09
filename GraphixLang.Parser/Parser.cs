@@ -12,6 +12,8 @@ public class Parser
     private readonly List<Token> _tokens;
     private int _position;
     private Token CurrentToken => _position < _tokens.Count ? _tokens[_position] : null;
+    private Dictionary<string, TokenType> _variableTypes = new Dictionary<string, TokenType>();
+
 
     public Parser(List<Token> tokens)
     {
@@ -259,28 +261,29 @@ public class Parser
         {
             // Parse metadata list
             node.StripAll = false;
-    
+
             do
             {
-                if (!IsValidMetadataType(CurrentToken.Type))
+                if (!IsStripableMetadataType(CurrentToken.Type))
                 {
-                    throw new SyntaxError($"Expected a valid metadata type at line {CurrentToken.Line}, column {CurrentToken.Column}");
+                    if (CurrentToken.Type == TokenType.FNAME || 
+                        CurrentToken.Type == TokenType.FSIZE || 
+                        CurrentToken.Type == TokenType.FWIDTH || 
+                        CurrentToken.Type == TokenType.FHEIGHT)
+                    {
+                        throw new SyntaxError($"Cannot strip essential metadata: {CurrentToken.Type} at line {CurrentToken.Line}, column {CurrentToken.Column}");
+                    }
+                    
+                    throw new SyntaxError($"Expected a strippable metadata type at line {CurrentToken.Line}, column {CurrentToken.Column}");
                 }
                 
                 node.MetadataTypes.Add(CurrentToken.Type);
                 Consume();
                 
-                // Check if we've reached the end of the list (EOL or another token)
                 if (CurrentToken.Type != TokenType.COMMA)
                     break;
                     
                 Consume(TokenType.COMMA);
-                
-                // Check if we have a valid metadata type after the comma
-                if (!IsValidMetadataType(CurrentToken.Type))
-                {
-                    throw new SyntaxError($"Expected a valid metadata type after comma at line {CurrentToken.Line}, column {CurrentToken.Column}");
-                }
                 
             } while (true);
         }
@@ -289,7 +292,6 @@ public class Parser
         
         return node;
     }
-
     private AddMetadataNode ParseAddMetadataStatement()
     {
         Consume(TokenType.ADD);
@@ -303,11 +305,13 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
+        // Restrict ADD to only specific metadata types
         if (CurrentToken.Type != TokenType.TAGS && 
             CurrentToken.Type != TokenType.TITLE && 
-            CurrentToken.Type != TokenType.COPYRIGHT)
+            CurrentToken.Type != TokenType.COPYRIGHT &&
+            CurrentToken.Type != TokenType.DESCRIPTION)
         {
-            throw new SyntaxError($"Expected TAGS, TITLE or COPYRIGHT at line {CurrentToken.Line}, column {CurrentToken.Column}");
+            throw new SyntaxError($"Expected TAGS, TITLE, COPYRIGHT or DESCRIPTION at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
         TokenType metadataType = CurrentToken.Type;
@@ -329,6 +333,27 @@ public class Parser
             MetadataType = metadataType,
             Value = value
         };
+    }
+
+    private bool IsStripableMetadataType(TokenType type)
+    {
+        // Cannot strip basic metadata fields
+        if (type == TokenType.FNAME || 
+            type == TokenType.FSIZE || 
+            type == TokenType.FWIDTH || 
+            type == TokenType.FHEIGHT)
+        {
+            return false;
+        }
+        
+        return type == TokenType.GPS ||
+            type == TokenType.CAMERA ||
+            type == TokenType.ADVANCE ||
+            type == TokenType.ORIGIN ||
+            type == TokenType.DESCRIPTION ||
+            type == TokenType.TAGS ||
+            type == TokenType.TITLE ||
+            type == TokenType.COPYRIGHT;
     }
 
     private RenameNode ParseRenameStatement()
@@ -357,7 +382,7 @@ public class Parser
             node.Terms.Add(ParseRenameTerm());
         }
         
-        // Validate that at least one term is a METADATA FNAME reference
+        // Validate that at least one term contains METADATA FNAME
         bool hasOriginalFilename = false;
         foreach (var term in node.Terms)
         {
@@ -398,7 +423,15 @@ public class Parser
                 
             case TokenType.METADATA:
                 termNode.Type = RenameTermType.METADATA;
-                termNode.MetadataValue = ParseMetadataExpression();
+                MetadataNode metadata = ParseMetadataExpression();
+                
+                // Ensure only FNAME is used in RENAME operations
+                if (metadata.MetadataType != TokenType.FNAME)
+                {
+                    throw new SyntaxError($"Only FNAME metadata can be used in RENAME operations, but got {metadata.MetadataType} at line {CurrentToken.Line}, column {CurrentToken.Column}");
+                }
+                
+                termNode.MetadataValue = metadata;
                 break;
                 
             default:
@@ -406,18 +439,6 @@ public class Parser
         }
         
         return termNode;
-    }
-
-    private bool IsValidMetadataType(TokenType type)
-    {
-        return type == TokenType.GPS ||
-            type == TokenType.CAMERA ||
-            type == TokenType.ADVANCE ||
-            type == TokenType.ORIGIN ||
-            type == TokenType.DESCRIPTION ||
-            type == TokenType.TAGS ||
-            type == TokenType.TITLE ||
-            type == TokenType.COPYRIGHT;
     }
 
     private ExpressionNode ParseBatchTerm()
@@ -608,10 +629,28 @@ public class Parser
         string identifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
+        // Store variable type for later type checking
+        _variableTypes[identifier] = type;
+        
         ExpressionNode initializer = null;
         if (CurrentToken.Type == TokenType.ASSIGN)
         {
             Consume(TokenType.ASSIGN);
+            
+            // If we're assigning a metadata value, check type compatibility
+            if (_position < _tokens.Count && _tokens[_position].Type == TokenType.METADATA)
+            {
+                Token metadataToken = _tokens[_position + 2]; // Skip METADATA and identifier to get the metadata type
+                
+                // Check type compatibility
+                if ((metadataToken.Type == TokenType.FSIZE && type != TokenType.TYPE_DBL) ||
+                    ((metadataToken.Type == TokenType.FWIDTH || metadataToken.Type == TokenType.FHEIGHT) && type != TokenType.TYPE_INT) ||
+                    (metadataToken.Type == TokenType.FNAME && type != TokenType.TYPE_STR))
+                {
+                    throw new SyntaxError($"Type mismatch: {metadataToken.Type} requires {GetRequiredType(metadataToken.Type)} but variable is {type} at line {CurrentToken.Line}, column {CurrentToken.Column}");
+                }
+            }
+            
             initializer = ParseExpression();
         }
         
@@ -623,6 +662,16 @@ public class Parser
             Identifier = identifier,
             Initializer = initializer
         };
+    }
+
+    // Helper method to get required type
+    private string GetRequiredType(TokenType metadataType)
+    {
+        if (metadataType == TokenType.FSIZE)
+            return "DOUBLE";
+        if (metadataType == TokenType.FWIDTH || metadataType == TokenType.FHEIGHT)
+            return "INT";
+        return "STRING";
     }
 
     private AssignmentNode ParseAssignmentStatement()
