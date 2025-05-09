@@ -4,7 +4,7 @@
     BATCH #photos3 = "C:/vacation2020/" + #photos2;
     BATCH #photos4 = #photos3 + #photos2;
 
-    FOREACH IMG $photo IN #photos {
+    FOREACH IMG $photo IN #photos EXPORT TO "C:/processed_photos/" {
         INT $width = METADATA $photo FWIDTH;
         INT $height = METADATA $photo FHEIGHT;
         STRING $name = METADATA $photo FNAME;
@@ -31,7 +31,5 @@
 
         RENAME $photo METADATA $photo FNAME + "_2025";
         RENAME $photo "MD" + COUNTER + "_" + METADATA $photo FNAME;
-
-        EXPORT $photo TO "C:/processed_photos/" KEEP_OG;
     }
 }

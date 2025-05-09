@@ -1,11 +1,9 @@
 {
     BATCH #mybatch = "images/";
-    FOREACH IMG $img IN #mybatch {
+    FOREACH IMG $img IN #mybatch EXPORT TO "C:/processed_photos/" {
         SET $img SEPIA;
         ROTATE $img LEFT;
         CROP $img (100, 200);
         INT $width = METADATA $img FWIDTH;
-
-        EXPORT $photo TO "C:/processed_photos/" DELETE_OG;
     }
 }

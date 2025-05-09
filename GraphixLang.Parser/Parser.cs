@@ -91,6 +91,8 @@ public class Parser
                 return ParseIfStatement();
             case TokenType.RENAME:
                 return ParseRenameStatement();
+            case TokenType.EXPORT:
+                return ParseExportStatement();
             case TokenType.STRIP:
                 if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.METADATA)
                 {
@@ -597,23 +599,78 @@ public class Parser
         
         Consume(TokenType.IN);
         
-        // Change this part to check for BATCH_IDENTIFIER instead
         if (CurrentToken.Type != TokenType.BATCH_IDENTIFIER)
         {
             throw new SyntaxError($"Expected a batch identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
         string batchIdentifier = CurrentToken.Value;
-        Consume(TokenType.BATCH_IDENTIFIER);  // Changed from VAR_IDENTIFIER to BATCH_IDENTIFIER
+        Consume(TokenType.BATCH_IDENTIFIER);
+        
+        // Make EXPORT TO mandatory
+        if (CurrentToken.Type != TokenType.EXPORT)
+        {
+            throw new SyntaxError($"Expected EXPORT after batch identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EXPORT);
+        
+        if (CurrentToken.Type != TokenType.TO)
+        {
+            throw new SyntaxError($"Expected TO after EXPORT at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.TO);
+        
+        if (CurrentToken.Type != TokenType.STR_VALUE)
+        {
+            throw new SyntaxError($"Expected a string value for export path at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string exportPath = CurrentToken.Value.Trim('"');
+        Consume(TokenType.STR_VALUE);
         
         var body = ParseBlock();
+        
+        // Check for EXPORT statements inside the body
+        CheckNoExportInBlock(body);
         
         return new ForEachNode
         {
             VarIdentifier = varIdentifier,
             BatchIdentifier = batchIdentifier,
+            ExportPath = exportPath,
             Body = body
         };
+    }
+
+    // Keep the helper method to check for EXPORT statements
+    private void CheckNoExportInBlock(BlockNode block)
+    {
+        foreach (var statement in block.Statements)
+        {
+            // Check if the statement is an ExportNode
+            if (statement is ExportNode)
+            {
+                throw new SyntaxError($"EXPORT statements are not allowed inside FOREACH blocks. The export destination is already specified in the FOREACH statement.");
+            }
+            
+            // Recursively check nested blocks
+            if (statement is IfNode ifNode)
+            {
+                CheckNoExportInBlock(ifNode.ThenBranch);
+                
+                if (ifNode.ElseBranch != null)
+                {
+                    CheckNoExportInBlock(ifNode.ElseBranch);
+                }
+                
+                foreach (var elifBranch in ifNode.ElifBranches)
+                {
+                    CheckNoExportInBlock(elifBranch.Body);
+                }
+            }
+        }
     }
 
     private VariableDeclarationNode ParseVariableDeclaration()
@@ -1047,6 +1104,55 @@ public class Parser
         }
         
         _position++;
+    }
+
+    private ExportNode ParseExportStatement()
+    {
+        Consume(TokenType.EXPORT);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        Consume(TokenType.TO);
+        
+        if (CurrentToken.Type != TokenType.STR_VALUE)
+        {
+            throw new SyntaxError($"Expected a string value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string destinationPath = CurrentToken.Value.Trim('"');
+        Consume(TokenType.STR_VALUE);
+        
+        bool keepOriginal;
+        
+        if (CurrentToken.Type == TokenType.OGKEEP)
+        {
+            keepOriginal = true;
+            Consume(TokenType.OGKEEP);
+        }
+        else if (CurrentToken.Type == TokenType.OGDELETE)
+        {
+            keepOriginal = false;
+            Consume(TokenType.OGDELETE);
+        }
+        else
+        {
+            throw new SyntaxError($"Expected OGKEEP or OGDELETE at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new ExportNode
+        {
+            ImageIdentifier = imageIdentifier,
+            DestinationPath = destinationPath,
+            KeepOriginal = keepOriginal
+        };
     }
 
     private void Consume()

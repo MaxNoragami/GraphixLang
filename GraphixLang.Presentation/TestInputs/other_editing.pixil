@@ -2,7 +2,7 @@
     BATCH #rawImages = "C:/raw/";
     IMG $watermark = "C:/raw/watermark.png";
 
-    FOREACH IMG $img IN #rawImages EXPORT TO "C:/processed_photos/" {  {
+    FOREACH IMG $img IN #rawImages EXPORT TO "C:/processed_photos/" {
         INT $width = METADATA $img FWIDTH;
         INT $height = METADATA $img FHEIGHT;
         
@@ -22,7 +22,5 @@
 
         WATERMARK $img "MY BRAND NAME" ~H000000~;
         WATERMARK $photo $watermark 128;
-
-        EXPORT $photo TO "C:/processed_photos/" KEEP_OG;
     }
 }

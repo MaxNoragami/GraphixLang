@@ -237,6 +237,10 @@ public class Tokenizer
             case "DESCRIPTION": return new Token(TokenType.DESCRIPTION, word, _line, _column - word.Length);
             case "RENAME": return new Token(TokenType.RENAME, word, _line, _column - word.Length);
             case "COUNTER": return new Token(TokenType.COUNTER, word, _line, _column - word.Length);
+            case "EXPORT": return new Token(TokenType.EXPORT, word, _line, _column - word.Length);
+            case "TO": return new Token(TokenType.TO, word, _line, _column - word.Length);
+            case "OGKEEP": return new Token(TokenType.OGKEEP, word, _line, _column - word.Length);
+            case "OGDELETE": return new Token(TokenType.OGDELETE, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers

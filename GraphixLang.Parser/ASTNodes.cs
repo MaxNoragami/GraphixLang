@@ -37,6 +37,7 @@ public interface IASTVisitor
     void Visit(AddMetadataNode node);
     void Visit(RenameNode node);
     void Visit(RenameTermNode node);
+    void Visit(ExportNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -83,6 +84,18 @@ public class BatchDeclarationNode : ASTNode
     }
 }
 
+public class ExportNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public string DestinationPath { get; set; }
+    public bool KeepOriginal { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
 public class ImageDeclarationNode : ASTNode
 {
     public string Identifier { get; set; }
@@ -108,6 +121,7 @@ public class ForEachNode : ASTNode
 {
     public string VarIdentifier { get; set; }
     public string BatchIdentifier { get; set; }
+    public string ExportPath { get; set; }  // Required export path
     public BlockNode Body { get; set; }
     
     public override void Accept(IASTVisitor visitor)

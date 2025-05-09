@@ -92,12 +92,13 @@ public class ASTPrinter : IASTVisitor
     public void Visit(ForEachNode node)
     {
         AppendIndent();
-        _sb.AppendLine($"ForEach: {node.VarIdentifier} in {node.BatchIdentifier}");
+        _sb.AppendLine($"ForEach: {node.VarIdentifier} in {node.BatchIdentifier} EXPORT TO \"{node.ExportPath}\"");
         
         IncreaseIndent();
         node.Body.Accept(this);
         DecreaseIndent();
     }
+
     
     public void Visit(VariableDeclarationNode node)
     {
@@ -388,6 +389,12 @@ public class ASTPrinter : IASTVisitor
                 node.MetadataValue.Accept(this);
                 break;
         }
+    }
+
+    public void Visit(ExportNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Export: {node.ImageIdentifier} to \"{node.DestinationPath}\" {(node.KeepOriginal ? "OGKEEP" : "OGDELETE")}");
     }
 
     private string GetOrientationTypeName(TokenType type)
