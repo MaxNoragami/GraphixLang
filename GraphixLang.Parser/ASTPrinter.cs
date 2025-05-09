@@ -83,6 +83,12 @@ public class ASTPrinter : IASTVisitor
         _sb.AppendLine($"Hue: {node.ImageIdentifier} {node.HueValue}");
     }
     
+    public void Visit(WatermarkNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Watermark: {node.ImageIdentifier} \"{node.Text}\" {node.ColorValue}");
+    }
+
     public void Visit(ForEachNode node)
     {
         AppendIndent();

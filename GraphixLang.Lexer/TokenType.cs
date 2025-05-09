@@ -44,6 +44,9 @@ public enum TokenType
     BOOL_VALUE,
     DBL_VALUE,
     INT_VALUE,
+    WATERMARK,
+    HEX_COLOR,
+    RGB_COLOR,
     
     // Identifier
     VAR_IDENTIFIER, // Either Batch '#' or Var '$'
@@ -66,6 +69,7 @@ public enum TokenType
     MULTIPLY,
     MINUS,
     PLUS,
+    
 
     // SPECIAL
     EOL,

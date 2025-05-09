@@ -30,6 +30,7 @@ public interface IASTVisitor
     void Visit(MetadataNode node);
     void Visit(BatchExpressionNode node);
     void Visit(HueNode node);
+    void Visit(WatermarkNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -45,6 +46,19 @@ public class ProgramNode : ASTNode
 public class BlockNode : ASTNode
 {
     public List<ASTNode> Statements { get; } = new List<ASTNode>();
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class WatermarkNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public string Text { get; set; }
+    public string ColorValue { get; set; }
+    public bool IsHexColor { get; set; }
     
     public override void Accept(IASTVisitor visitor)
     {

@@ -130,6 +130,22 @@ public class Tokenizer
         {
             return ReadString();
         }
+
+        if (current == '~')
+        {
+            if (_position + 1 < _input.Length)
+            {
+                char colorType = _input[_position + 1];
+                if (colorType == 'H')
+                {
+                    return ReadHexColor();
+                }
+                else if (colorType == 'R')
+                {
+                    return ReadRGBColor();
+                }
+            }
+        }
         
         // No match :(
         return null;
@@ -207,6 +223,7 @@ public class Tokenizer
             case "PORTRAIT": return new Token(TokenType.PORTRAIT, word, _line, _column - word.Length);
             case "ROTATE": return new Token(TokenType.ROTATE, word, _line, _column - word.Length);
             case "HUE": return new Token(TokenType.HUE, word, _line, _column - word.Length);
+            case "WATERMARK": return new Token(TokenType.WATERMARK, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers
@@ -250,5 +267,74 @@ public class Tokenizer
         _position++; // Skip closing quote
         _column++;
         return new Token(TokenType.STR_VALUE, $"\"{val}\"", _line, _column - val.Length - 2);
+    }
+
+    private Token ReadHexColor()
+    {
+        // Starting position is at '~'
+        int start = _position;
+        _position += 2; // Skip '~H'
+        _column += 2;
+        
+        // Count the hex digits
+        int digitCount = 0;
+        while (_position < _input.Length && 
+            ((_input[_position] >= '0' && _input[_position] <= '9') || 
+            (_input[_position] >= 'A' && _input[_position] <= 'F') || 
+            (_input[_position] >= 'a' && _input[_position] <= 'f')))
+        {
+            _position++;
+            _column++;
+            digitCount++;
+        }
+        
+        // Enforce exactly 6 or 8 hex digits
+        if (digitCount != 6 && digitCount != 8)
+        {
+            throw new Exception($"Hex color must have exactly 6 digits (RRGGBB) or 8 digits (RRGGBBAA) at line {_line}, column {_column}");
+        }
+        
+        // Expect closing '~'
+        if (_position < _input.Length && _input[_position] == '~')
+        {
+            _position++;
+            _column++;
+            return new Token(TokenType.HEX_COLOR, _input.Substring(start, _position - start), _line, _column - (_position - start));
+        }
+        
+        throw new Exception($"Expected closing '~' for hex color at line {_line}, column {_column}");
+    }
+
+    private Token ReadRGBColor()
+    {
+        // Starting position is at '~'
+        int start = _position;
+        _position += 2; // Skip '~R'
+        _column += 2;
+        
+        // Count the digits
+        int digitCount = 0;
+        while (_position < _input.Length && _input[_position] >= '0' && _input[_position] <= '9')
+        {
+            _position++;
+            _column++;
+            digitCount++;
+        }
+        
+        // Enforce exactly 9 or 12 digits
+        if (digitCount != 9 && digitCount != 12)
+        {
+            throw new Exception($"RGB color must have exactly 9 digits (RRRGGGBBB) or 12 digits (RRRGGGBBBAAA) at line {_line}, column {_column}");
+        }
+        
+        // Expect closing '~'
+        if (_position < _input.Length && _input[_position] == '~')
+        {
+            _position++;
+            _column++;
+            return new Token(TokenType.RGB_COLOR, _input.Substring(start, _position - start), _line, _column - (_position - start));
+        }
+        
+        throw new Exception($"Expected closing '~' for RGB color at line {_line}, column {_column}");
     }
 }

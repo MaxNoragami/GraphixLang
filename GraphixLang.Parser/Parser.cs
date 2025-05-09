@@ -111,6 +111,8 @@ public class Parser
                 return ParseRotateStatement();
             case TokenType.CROP:
                 return ParseCropStatement();
+            case TokenType.WATERMARK:
+                return ParseWatermarkStatement();
             case TokenType.ORIENTATION:
                 return ParseOrientationStatement();
             default:
@@ -219,6 +221,57 @@ public class Parser
         {
             ImageIdentifier = imageIdentifier,
             HueValue = hueValue
+        };
+    }
+
+    private WatermarkNode ParseWatermarkStatement()
+    {
+        Consume(TokenType.WATERMARK);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        if (CurrentToken.Type != TokenType.STR_VALUE)
+        {
+            throw new SyntaxError($"Expected a string value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string text = CurrentToken.Value.Trim('"');
+        Consume(TokenType.STR_VALUE);
+        
+        bool isHexColor = false;
+        string colorValue = "";
+        
+        if (CurrentToken.Type == TokenType.HEX_COLOR)
+        {
+            isHexColor = true;
+            colorValue = CurrentToken.Value;
+            Consume(TokenType.HEX_COLOR);
+        }
+        else if (CurrentToken.Type == TokenType.RGB_COLOR)
+        {
+            isHexColor = false;
+            colorValue = CurrentToken.Value;
+            Consume(TokenType.RGB_COLOR);
+        }
+        else
+        {
+            throw new SyntaxError($"Expected a color value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new WatermarkNode
+        {
+            ImageIdentifier = imageIdentifier,
+            Text = text,
+            ColorValue = colorValue,
+            IsHexColor = isHexColor
         };
     }
 

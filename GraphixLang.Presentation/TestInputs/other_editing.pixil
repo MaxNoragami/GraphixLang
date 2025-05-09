@@ -1,6 +1,6 @@
 {
     BATCH #rawImages = "C:/raw/";
-    
+
     FOREACH IMG $img IN #rawImages {
         INT $width = METADATA $img FWIDTH;
         INT $height = METADATA $img FHEIGHT;
@@ -18,5 +18,7 @@
         IF $height > $width {
             ROTATE $img RIGHT;
         }
+
+        WATERMARK $img "MY BRAND NAME" ~H000000~;
     }
 }

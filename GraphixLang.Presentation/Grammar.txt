@@ -13,7 +13,8 @@
 				<FOREACH_OP> |
 				<CONDITIONAL_OP> |
                 <ORIENTATION_OP> |
-                <HUE_OP>
+                <HUE_OP> |
+                <WATERMARK_OP>
 
 
 // From <STATEMENT>
@@ -41,6 +42,8 @@
 <FOREACH_OP> ::= <FOREACH> <IMG_TYPE> <VAR_IDENTIFIER> <IN> <BATCH_IDENTIFIER> <CODE_BLOCK>
 
 <CONDITIONAL_OP> ::=  <IF_BLOCK> <ELIF_PART> <ELSE_PART>
+
+<WATERMARK_OP> ::= <WATERMARK> <VAR_IDENTIFIER> <STR_VALUE> <COLOR_VALUE> <EOL>
 
 
 // WITHIN OPERATIONS FROM <STATEMENT>
@@ -75,6 +78,12 @@
 <EXPRESSION> ::= <VAR_IDENTIFIER> | <BATCH_IDENTIFIER> | <PRIMITIVE_VALUE> | <EXPRESSION> <OPERATOR> <EXPRESSION>
 
 <OPERATOR> ::= <PLUS> | <MINUS> | <MULTIPLY> | <DIVIDE>
+
+<COLOR_VALUE> ::= <HEX_COLOR> | <RGB_COLOR>
+
+<HEX_COLOR> ::= '~H' <HEX_DIGITS> '~'
+
+<RGB_COLOR> ::= '~R' <RGB_DIGITS> '~'
 
 <PLUS> ::= '+'
 
@@ -179,6 +188,10 @@
 
 <STR_VALUE> ::= "\"" [A-Za-z0-9./]+ "\""
 
+<HEX_DIGITS> ::= [0-9A-Fa-f]{8}
+
+<RGB_DIGITS> ::= [0-9]{12}
+
 <GREATER_EQUAL> ::= '>='
 
 <SMALLER_EQUAL> ::= '<='
@@ -222,6 +235,8 @@
 <CROP> ::= 'CROP'
 
 <ORIENTATION> ::= 'ORIENTATION'
+
+<WATERMARK> ::= 'WATERMARK'
 
 <ROTATE> ::= 'ROTATE'
 
