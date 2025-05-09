@@ -16,5 +16,7 @@
         ELSE {
             SET $image SHARPEN;
         }
+
+        EXPORT $photo TO "C:/processed_photos/" KEEP_OG;
     }
 }

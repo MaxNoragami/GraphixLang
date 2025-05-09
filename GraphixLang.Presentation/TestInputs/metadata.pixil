@@ -31,5 +31,7 @@
 
         RENAME $photo METADATA $photo FNAME + "_2025";
         RENAME $photo "MD" + COUNTER + "_" + METADATA $photo FNAME;
+
+        EXPORT $photo TO "C:/processed_photos/" KEEP_OG;
     }
 }

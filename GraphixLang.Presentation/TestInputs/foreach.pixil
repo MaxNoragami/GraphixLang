@@ -5,5 +5,7 @@
         ROTATE $img LEFT;
         CROP $img (100, 200);
         INT $width = METADATA $img FWIDTH;
+
+        EXPORT $photo TO "C:/processed_photos/" DELETE_OG;
     }
 }
