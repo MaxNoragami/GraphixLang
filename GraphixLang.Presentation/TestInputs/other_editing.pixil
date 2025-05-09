@@ -1,5 +1,6 @@
 {
     BATCH #rawImages = "C:/raw/";
+    IMG $watermark = "C:/raw/watermark.png";
 
     FOREACH IMG $img IN #rawImages {
         INT $width = METADATA $img FWIDTH;
@@ -20,5 +21,6 @@
         }
 
         WATERMARK $img "MY BRAND NAME" ~H000000~;
+        WATERMARK $photo $watermark 128;
     }
 }

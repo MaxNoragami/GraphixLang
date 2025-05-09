@@ -113,6 +113,18 @@ public class ASTPrinter : IASTVisitor
         _sb.AppendLine();
     }
     
+    public void Visit(ImageDeclarationNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"ImageDeclaration: {node.Identifier} = \"{node.Path}\"");
+    }
+
+    public void Visit(ImageWatermarkNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"ImageWatermark: {node.ImageIdentifier} with {node.WatermarkImageIdentifier}, transparency: {node.Transparency}");
+    }
+
     public void Visit(AssignmentNode node)
     {
         AppendIndent();

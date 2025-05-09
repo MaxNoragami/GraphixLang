@@ -31,6 +31,8 @@ public interface IASTVisitor
     void Visit(BatchExpressionNode node);
     void Visit(HueNode node);
     void Visit(WatermarkNode node);
+    void Visit(ImageDeclarationNode node);
+    void Visit(ImageWatermarkNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -70,6 +72,17 @@ public class BatchDeclarationNode : ASTNode
 {
     public string Identifier { get; set; }
     public ExpressionNode Expression { get; set; }  // Changed from Path (string) to Expression
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class ImageDeclarationNode : ASTNode
+{
+    public string Identifier { get; set; }
+    public string Path { get; set; }
     
     public override void Accept(IASTVisitor visitor)
     {
@@ -233,6 +246,18 @@ public class LiteralNode : ExpressionNode
 public class VariableReferenceNode : ExpressionNode
 {
     public string Identifier { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class ImageWatermarkNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public string WatermarkImageIdentifier { get; set; }
+    public int Transparency { get; set; }
     
     public override void Accept(IASTVisitor visitor)
     {

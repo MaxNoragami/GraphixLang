@@ -80,8 +80,9 @@ public class Parser
             case TokenType.TYPE_DBL:
             case TokenType.TYPE_STR:
             case TokenType.TYPE_BOOL:
-            case TokenType.TYPE_IMG:
                 return ParseVariableDeclaration();
+            case TokenType.TYPE_IMG:
+                return ParseImageDeclaration();
             case TokenType.VAR_IDENTIFIER:
                 return ParseAssignmentStatement();
             case TokenType.IF:
@@ -142,6 +143,55 @@ public class Parser
         {
             Identifier = batchIdentifier,
             Expression = expression  // Updated to store the full expression
+        };
+    }
+
+    private ImageDeclarationNode ParseImageDeclaration()
+    {
+        Consume(TokenType.TYPE_IMG);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string identifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        Consume(TokenType.ASSIGN);
+        
+        if (CurrentToken.Type != TokenType.STR_VALUE)
+        {
+            throw new SyntaxError($"Expected a string value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string path = CurrentToken.Value.Trim('"');
+        Consume(TokenType.STR_VALUE);
+        
+        // Validate that the path ends with an acceptable image format
+        string[] validExtensions = { ".png", ".jpg", ".jpeg", ".webp", ".tiff", ".bmp" };
+        bool isValidImagePath = false;
+        
+        foreach (var ext in validExtensions)
+        {
+            if (path.EndsWith(ext, StringComparison.OrdinalIgnoreCase))
+            {
+                isValidImagePath = true;
+                break;
+            }
+        }
+        
+        if (!isValidImagePath)
+        {
+            throw new SyntaxError($"Invalid image file format at line {CurrentToken.Line}, column {CurrentToken.Column}. Supported formats: PNG, JPG, JPEG, WEBP, TIFF, BMP");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new ImageDeclarationNode
+        {
+            Identifier = identifier,
+            Path = path
         };
     }
 
@@ -224,7 +274,7 @@ public class Parser
         };
     }
 
-    private WatermarkNode ParseWatermarkStatement()
+    private ASTNode ParseWatermarkStatement()
     {
         Consume(TokenType.WATERMARK);
         
@@ -236,43 +286,76 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        if (CurrentToken.Type != TokenType.STR_VALUE)
+        // Check if it's a text watermark or image watermark
+        if (CurrentToken.Type == TokenType.STR_VALUE)
         {
-            throw new SyntaxError($"Expected a string value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+            // Text watermark
+            string text = CurrentToken.Value.Trim('"');
+            Consume(TokenType.STR_VALUE);
+            
+            bool isHexColor = false;
+            string colorValue = "";
+            
+            if (CurrentToken.Type == TokenType.HEX_COLOR)
+            {
+                isHexColor = true;
+                colorValue = CurrentToken.Value;
+                Consume(TokenType.HEX_COLOR);
+            }
+            else if (CurrentToken.Type == TokenType.RGB_COLOR)
+            {
+                isHexColor = false;
+                colorValue = CurrentToken.Value;
+                Consume(TokenType.RGB_COLOR);
+            }
+            else
+            {
+                throw new SyntaxError($"Expected a color value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+            }
+            
+            Consume(TokenType.EOL);
+            
+            return new WatermarkNode
+            {
+                ImageIdentifier = imageIdentifier,
+                Text = text,
+                ColorValue = colorValue,
+                IsHexColor = isHexColor
+            };
         }
-        
-        string text = CurrentToken.Value.Trim('"');
-        Consume(TokenType.STR_VALUE);
-        
-        bool isHexColor = false;
-        string colorValue = "";
-        
-        if (CurrentToken.Type == TokenType.HEX_COLOR)
+        else if (CurrentToken.Type == TokenType.VAR_IDENTIFIER)
         {
-            isHexColor = true;
-            colorValue = CurrentToken.Value;
-            Consume(TokenType.HEX_COLOR);
-        }
-        else if (CurrentToken.Type == TokenType.RGB_COLOR)
-        {
-            isHexColor = false;
-            colorValue = CurrentToken.Value;
-            Consume(TokenType.RGB_COLOR);
+            // Image watermark
+            string watermarkImageIdentifier = CurrentToken.Value;
+            Consume(TokenType.VAR_IDENTIFIER);
+            
+            if (CurrentToken.Type != TokenType.INT_VALUE)
+            {
+                throw new SyntaxError($"Expected an integer value (0-255) for transparency at line {CurrentToken.Line}, column {CurrentToken.Column}");
+            }
+            
+            int transparency = int.Parse(CurrentToken.Value);
+            Consume(TokenType.INT_VALUE);
+            
+            // Validate transparency is within 0-255
+            if (transparency < 0 || transparency > 255)
+            {
+                throw new SyntaxError($"Transparency value must be between 0 and 255 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+            }
+            
+            Consume(TokenType.EOL);
+            
+            return new ImageWatermarkNode
+            {
+                ImageIdentifier = imageIdentifier,
+                WatermarkImageIdentifier = watermarkImageIdentifier,
+                Transparency = transparency
+            };
         }
         else
         {
-            throw new SyntaxError($"Expected a color value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+            throw new SyntaxError($"Expected a string value or variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
-        
-        Consume(TokenType.EOL);
-        
-        return new WatermarkNode
-        {
-            ImageIdentifier = imageIdentifier,
-            Text = text,
-            ColorValue = colorValue,
-            IsHexColor = isHexColor
-        };
     }
 
     private ForEachNode ParseForEachStatement()
