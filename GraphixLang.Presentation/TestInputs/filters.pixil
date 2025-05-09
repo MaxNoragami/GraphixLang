@@ -1,0 +1,17 @@
+{
+    IMG $photo = "C:/images/photo.jpg";
+
+    SET $photo BRIGHTNESS 120;
+    
+    SET $photo CONTRAST 70;
+    
+    SET $photo OPACITY 90;
+    
+    SET $photo NOISE 30;
+    
+    SET $photo BLUR 3;
+    
+    SET $photo PIXELATE 10;
+
+    EXPORT $photo TO "C:/processed_photos/" OGKEEP;
+}

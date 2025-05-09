@@ -41,6 +41,12 @@ public interface IASTVisitor
     void Visit(ConvertNode node);
     void Visit(ResizeNode node);
     void Visit(CompressNode node);
+    void Visit(BrightnessNode node);
+    void Visit(ContrastNode node);
+    void Visit(OpacityNode node);
+    void Visit(NoiseNode node);
+    void Visit(BlurNode node);
+    void Visit(PixelateNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -56,6 +62,72 @@ public class ProgramNode : ASTNode
 public class BlockNode : ASTNode
 {
     public List<ASTNode> Statements { get; } = new List<ASTNode>();
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class BrightnessNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public int Value { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class ContrastNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public int Value { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class OpacityNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public int Value { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class NoiseNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public int Value { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class BlurNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public int Value { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class PixelateNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public int Value { get; set; }
     
     public override void Accept(IASTVisitor visitor)
     {

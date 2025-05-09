@@ -477,4 +477,40 @@ public class ASTPrinter : IASTVisitor
             default: return type.ToString();
         }
     }
+
+    public void Visit(BrightnessNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Brightness: {node.ImageIdentifier} {node.Value}");
+    }
+
+    public void Visit(ContrastNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Contrast: {node.ImageIdentifier} {node.Value}");
+    }
+
+    public void Visit(OpacityNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Opacity: {node.ImageIdentifier} {node.Value}");
+    }
+
+    public void Visit(NoiseNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Noise: {node.ImageIdentifier} {node.Value}");
+    }
+
+    public void Visit(BlurNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Blur: {node.ImageIdentifier} {node.Value}");
+    }
+
+    public void Visit(PixelateNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Pixelate: {node.ImageIdentifier} {node.Value}");
+    }
 }

@@ -112,26 +112,37 @@ public class Parser
                 }
                 throw new SyntaxError($"Unexpected token after ADD at line {CurrentToken.Line}, column {CurrentToken.Column}"); 
             case TokenType.SET:
-                // Need to look ahead to determine whether it's a filter or hue operation
-                string varIdentifier = "";
+                // Need to look ahead to determine which operation
                 if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.VAR_IDENTIFIER)
                 {
-                    varIdentifier = _tokens[_position + 1].Value;
+                    string varIdentifier = _tokens[_position + 1].Value;
                     
                     if (_position + 2 < _tokens.Count)
                     {
                         // Check the token after the variable identifier to determine operation type
-                        if (_tokens[_position + 2].Type == TokenType.HUE)
+                        TokenType tokenType = _tokens[_position + 2].Type;
+                        switch (tokenType)
                         {
-                            return ParseHueStatement();
-                        }
-                        else
-                        {
-                            return ParseSetStatement();
+                            case TokenType.HUE:
+                                return ParseHueStatement();
+                            case TokenType.BRIGHTNESS:
+                                return ParseBrightnessStatement();
+                            case TokenType.CONTRAST:
+                                return ParseContrastStatement();
+                            case TokenType.OPACITY:
+                                return ParseOpacityStatement();
+                            case TokenType.NOISE:
+                                return ParseNoiseStatement();
+                            case TokenType.BLUR:
+                                return ParseBlurStatement();
+                            case TokenType.PIXELATE:
+                                return ParsePixelateStatement();
+                            default:
+                                return ParseSetStatement(); // Filter operation
                         }
                     }
                 }
-                return ParseSetStatement(); // Default to filter if we can't determine
+                return ParseSetStatement();
             case TokenType.ROTATE:
                 return ParseRotateStatement();
             case TokenType.CROP:
@@ -1458,6 +1469,258 @@ public class Parser
         
         // Other combinations are incompatible
         return false;
+    }
+
+    private BrightnessNode ParseBrightnessStatement()
+    {
+        Consume(TokenType.SET);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "BRIGHTNESS");
+        
+        Consume(TokenType.BRIGHTNESS);
+        
+        // Check that the next token is a valid integer value
+        if (CurrentToken.Type != TokenType.INT_VALUE)
+        {
+            throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        // Parse the brightness value
+        int value = int.Parse(CurrentToken.Value);
+        Consume(TokenType.INT_VALUE);
+        
+        // Validate that the brightness value is in the range 0-200
+        if (value < 0 || value > 200)
+        {
+            throw new SyntaxError($"Brightness value must be between 0 and 200 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new BrightnessNode
+        {
+            ImageIdentifier = imageIdentifier,
+            Value = value
+        };
+    }
+
+    private ContrastNode ParseContrastStatement()
+    {
+        Consume(TokenType.SET);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "CONTRAST");
+        
+        Consume(TokenType.CONTRAST);
+        
+        // Check that the next token is a valid integer value
+        if (CurrentToken.Type != TokenType.INT_VALUE)
+        {
+            throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        // Parse the contrast value
+        int value = int.Parse(CurrentToken.Value);
+        Consume(TokenType.INT_VALUE);
+        
+        // Validate that the contrast value is in the range 0-200
+        if (value < 0 || value > 200)
+        {
+            throw new SyntaxError($"Contrast value must be between 0 and 200 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new ContrastNode
+        {
+            ImageIdentifier = imageIdentifier,
+            Value = value
+        };
+    }
+
+    private OpacityNode ParseOpacityStatement()
+    {
+        Consume(TokenType.SET);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "OPACITY");
+        
+        Consume(TokenType.OPACITY);
+        
+        // Check that the next token is a valid integer value
+        if (CurrentToken.Type != TokenType.INT_VALUE)
+        {
+            throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        // Parse the opacity value
+        int value = int.Parse(CurrentToken.Value);
+        Consume(TokenType.INT_VALUE);
+        
+        // Validate that the opacity value is in the range 0-100
+        if (value < 0 || value > 100)
+        {
+            throw new SyntaxError($"Opacity value must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new OpacityNode
+        {
+            ImageIdentifier = imageIdentifier,
+            Value = value
+        };
+    }
+
+    private NoiseNode ParseNoiseStatement()
+    {
+        Consume(TokenType.SET);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "NOISE");
+        
+        Consume(TokenType.NOISE);
+        
+        // Check that the next token is a valid integer value
+        if (CurrentToken.Type != TokenType.INT_VALUE)
+        {
+            throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        // Parse the noise value
+        int value = int.Parse(CurrentToken.Value);
+        Consume(TokenType.INT_VALUE);
+        
+        // Validate that the noise value is in the range 0-100
+        if (value < 0 || value > 100)
+        {
+            throw new SyntaxError($"Noise value must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new NoiseNode
+        {
+            ImageIdentifier = imageIdentifier,
+            Value = value
+        };
+    }
+
+    private BlurNode ParseBlurStatement()
+    {
+        Consume(TokenType.SET);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "BLUR");
+        
+        Consume(TokenType.BLUR);
+        
+        // Check that the next token is a valid integer value
+        if (CurrentToken.Type != TokenType.INT_VALUE)
+        {
+            throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        // Parse the blur value
+        int value = int.Parse(CurrentToken.Value);
+        Consume(TokenType.INT_VALUE);
+        
+        // Validate that the blur value is in the range 0-100
+        if (value < 0 || value > 100)
+        {
+            throw new SyntaxError($"Blur value must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new BlurNode
+        {
+            ImageIdentifier = imageIdentifier,
+            Value = value
+        };
+    }
+
+    private PixelateNode ParsePixelateStatement()
+    {
+        Consume(TokenType.SET);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "PIXELATE");
+        
+        Consume(TokenType.PIXELATE);
+        
+        // Check that the next token is a valid integer value
+        if (CurrentToken.Type != TokenType.INT_VALUE)
+        {
+            throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        // Parse the pixelate value
+        int value = int.Parse(CurrentToken.Value);
+        Consume(TokenType.INT_VALUE);
+        
+        // Validate that the pixelate value is in the range 1-100
+        if (value < 1 || value > 100)
+        {
+            throw new SyntaxError($"Pixelate value must be between 1 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new PixelateNode
+        {
+            ImageIdentifier = imageIdentifier,
+            Value = value
+        };
     }
 
     private BinaryExpressionNode CreateBinaryExpression(ExpressionNode left, TokenType op, ExpressionNode right)

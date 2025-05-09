@@ -329,6 +329,12 @@ public class Tokenizer
             case "RESIZE": return new Token(TokenType.RESIZE, word, _line, _column - word.Length);
             case "RATIOFALSE": return new Token(TokenType.RATIOFALSE, word, _line, _column - word.Length);
             case "COMPRESS": return new Token(TokenType.COMPRESS, word, _line, _column - word.Length);
+            case "BRIGHTNESS": return new Token(TokenType.BRIGHTNESS, word, _line, _column - word.Length);
+            case "CONTRAST": return new Token(TokenType.CONTRAST, word, _line, _column - word.Length);
+            case "OPACITY": return new Token(TokenType.OPACITY, word, _line, _column - word.Length);
+            case "NOISE": return new Token(TokenType.NOISE, word, _line, _column - word.Length);
+            case "BLUR": return new Token(TokenType.BLUR, word, _line, _column - word.Length);
+            case "PIXELATE": return new Token(TokenType.PIXELATE, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers

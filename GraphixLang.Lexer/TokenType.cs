@@ -34,6 +34,12 @@ public enum TokenType
     RESIZE,
     RATIOFALSE,
     COMPRESS,
+    BRIGHTNESS,
+    CONTRAST,
+    OPACITY,
+    NOISE,
+    BLUR,
+    PIXELATE,
 
 
     // Types

@@ -21,7 +21,13 @@
                 <EXPORT_IMG_OP> |
                 <CONVERT_OP> |
                 <RESIZE_OP> |
-                <COMPRESS_OP>
+                <COMPRESS_OP> |
+                <BRIGHTNESS_OP> |
+                <CONTRAST_OP> |
+                <OPACITY_OP> |
+                <NOISE_OP> |
+                <BLUR_OP> |
+                <PIXELATE_OP>
 
 
 // From <STATEMENT>
@@ -61,6 +67,18 @@
 <ADD_METADATA_OP> ::= <ADD> <METADATA> <VAR_IDENTIFIER> <METADATA_ADD_TYPE> <STR_VALUE> <EOL>
 
 <FILTER_OP> ::= <SET> <VAR_IDENTIFIER> <FILER_TYPE> <EOL>
+
+<BRIGHTNESS_OP> ::= <SET> <VAR_IDENTIFIER> <BRIGHTNESS> <INT_VALUE> <EOL>
+
+<CONTRAST_OP> ::= <SET> <VAR_IDENTIFIER> <CONTRAST> <INT_VALUE> <EOL>
+
+<OPACITY_OP> ::= <SET> <VAR_IDENTIFIER> <OPACITY> <INT_VALUE> <EOL>
+
+<NOISE_OP> ::= <SET> <VAR_IDENTIFIER> <NOISE> <INT_VALUE> <EOL>
+
+<BLUR_OP> ::= <SET> <VAR_IDENTIFIER> <BLUR> <INT_VALUE> <EOL>
+
+<PIXELATE_OP> ::= <SET> <VAR_IDENTIFIER> <PIXELATE> <INT_VALUE> <EOL>
 
 <HUE_OP> ::= <SET> <VAR_IDENTIFIER> <HUE> <INT_VALUE> <EOL>
 
@@ -205,6 +223,18 @@
 <CLOSE_BLOCK> ::= '}'
 
 <ASSIGN> ::= '='
+
+<BRIGHTNESS> ::= 'BRIGHTNESS'
+
+<CONTRAST> ::= 'CONTRAST'
+
+<OPACITY> ::= 'OPACITY'
+
+<NOISE> ::= 'NOISE'
+
+<BLUR> ::= 'BLUR'
+
+<PIXELATE> ::= 'PIXELATE'
 
 <STRIP> ::= 'STRIP'
 
