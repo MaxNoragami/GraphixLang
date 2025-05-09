@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace GraphixLang.Lexer;
@@ -76,6 +77,14 @@ public class Tokenizer
     {
         char current = _input[_position];
 
+        // Special case for aspect ratios - check this first
+        if (char.IsDigit(current))
+        {
+            Token? ratioToken = TryMatchAspectRatio();
+            if (ratioToken != null)
+                return ratioToken;
+        }
+
         // Tokenizing symbols
         if(current == ')') return Advance(TokenType.CLOSE_P, ")");
         if(current == '(') return Advance(TokenType.OPEN_P, "(");
@@ -151,6 +160,63 @@ public class Tokenizer
         return null;
     }
 
+    private Token? TryMatchAspectRatio()
+    {
+        // Store the current position to restore if not a match
+        int startPosition = _position;
+        int startColumn = _column;
+        
+        // Read potential first number
+        StringBuilder sb = new StringBuilder();
+        while (_position < _input.Length && char.IsDigit(_input[_position]))
+        {
+            sb.Append(_input[_position]);
+            _position++;
+            _column++;
+        }
+        
+        // Check for colon
+        if (_position < _input.Length && _input[_position] == ':')
+        {
+            sb.Append(_input[_position]);
+            _position++;
+            _column++;
+            
+            // Read second number
+            while (_position < _input.Length && char.IsDigit(_input[_position]))
+            {
+                sb.Append(_input[_position]);
+                _position++;
+                _column++;
+            }
+            
+            string ratio = sb.ToString();
+            
+            // Check if it's one of our supported ratios
+            switch (ratio)
+            {
+                case "16:9": return new Token(TokenType.RATIO_16_9, ratio, _line, startColumn);
+                case "9:16": return new Token(TokenType.RATIO_9_16, ratio, _line, startColumn);
+                case "4:3": return new Token(TokenType.RATIO_4_3, ratio, _line, startColumn);
+                case "3:4": return new Token(TokenType.RATIO_3_4, ratio, _line, startColumn);
+                case "1:1": return new Token(TokenType.RATIO_1_1, ratio, _line, startColumn);
+                case "2:3": return new Token(TokenType.RATIO_2_3, ratio, _line, startColumn);
+                case "3:2": return new Token(TokenType.RATIO_3_2, ratio, _line, startColumn);
+                case "2:1": return new Token(TokenType.RATIO_2_1, ratio, _line, startColumn);
+                case "1:2": return new Token(TokenType.RATIO_1_2, ratio, _line, startColumn);
+                case "16:10": return new Token(TokenType.RATIO_16_10, ratio, _line, startColumn);
+                case "10:16": return new Token(TokenType.RATIO_10_16, ratio, _line, startColumn);
+                case "21:9": return new Token(TokenType.RATIO_21_9, ratio, _line, startColumn);
+                case "9:21": return new Token(TokenType.RATIO_9_21, ratio, _line, startColumn);
+            }
+        }
+        
+        // No match, restore position and column
+        _position = startPosition;
+        _column = startColumn;
+        return null;
+    }
+
     private Token Advance(TokenType type, string val)
     {
         _position++;
@@ -177,11 +243,23 @@ public class Tokenizer
         // To keep track where the word started
         int start = _position;
 
-        while(_position < _input.Length && (char.IsLetterOrDigit(_input[_position]) || _input[_position] == '$' || _input[_position] == '#'))
+        // Special handling for aspect ratios which can contain ':'
+        bool foundColon = false;
+        
+        while(_position < _input.Length && 
+            (char.IsLetterOrDigit(_input[_position]) || 
+            _input[_position] == '$' || 
+            _input[_position] == '#' ||
+            // Allow colon for aspect ratios like "16:9"
+            (_input[_position] == ':' && !foundColon && _position > start && char.IsDigit(_input[_position - 1]))))
         {
+            if (_input[_position] == ':')
+                foundColon = true;
+                
             _position++;
             _column++;
         }
+        
         return _input.Substring(start, _position - start);
     }
 
@@ -248,6 +326,8 @@ public class Tokenizer
             case "WEBP": return new Token(TokenType.WEBP, word, _line, _column - word.Length);
             case "TIFF": return new Token(TokenType.TIFF, word, _line, _column - word.Length);
             case "BMP": return new Token(TokenType.BMP, word, _line, _column - word.Length);
+            case "RESIZE": return new Token(TokenType.RESIZE, word, _line, _column - word.Length);
+            case "RATIOFALSE": return new Token(TokenType.RATIOFALSE, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers

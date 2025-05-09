@@ -417,6 +417,51 @@ public class ASTPrinter : IASTVisitor
         }
     }
 
+    public void Visit(ResizeNode node)
+    {
+        AppendIndent();
+        if (node.IsAspectRatioMode)
+        {
+            _sb.AppendLine($"Resize: {node.ImageIdentifier} to {GetAspectRatioName(node.AspectRatio)}");
+        }
+        else
+        {
+            _sb.Append($"Resize: {node.ImageIdentifier} to (");
+            node.Width.Accept(this);
+            _sb.Append(", ");
+            node.Height.Accept(this);
+            _sb.Append(")");
+            
+            if (!node.MaintainAspectRatio)
+            {
+                _sb.Append(" RATIOFALSE");
+            }
+            
+            _sb.AppendLine();
+        }
+    }
+
+    private string GetAspectRatioName(TokenType ratio)
+    {
+        switch (ratio)
+        {
+            case TokenType.RATIO_16_9: return "16:9";
+            case TokenType.RATIO_9_16: return "9:16";
+            case TokenType.RATIO_4_3: return "4:3";
+            case TokenType.RATIO_3_4: return "3:4";
+            case TokenType.RATIO_1_1: return "1:1";
+            case TokenType.RATIO_2_3: return "2:3";
+            case TokenType.RATIO_3_2: return "3:2";
+            case TokenType.RATIO_2_1: return "2:1";
+            case TokenType.RATIO_1_2: return "1:2";
+            case TokenType.RATIO_16_10: return "16:10";
+            case TokenType.RATIO_10_16: return "10:16";
+            case TokenType.RATIO_21_9: return "21:9";
+            case TokenType.RATIO_9_21: return "9:21";
+            default: return ratio.ToString();
+        }
+    }
+
     private string GetOrientationTypeName(TokenType type)
     {
         switch (type)

@@ -95,6 +95,8 @@ public class Parser
                 return ParseExportStatement();
             case TokenType.CONVERT:
                 return ParseConvertStatement();
+            case TokenType.RESIZE:
+                return ParseResizeStatement();
             case TokenType.STRIP:
                 if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.METADATA)
                 {
@@ -1225,6 +1227,85 @@ public class Parser
     private void Consume()
     {
         _position++;
+    }
+
+    private ResizeNode ParseResizeStatement()
+    {
+        Consume(TokenType.RESIZE);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "RESIZE");
+        
+        var resizeNode = new ResizeNode
+        {
+            ImageIdentifier = imageIdentifier,
+            MaintainAspectRatio = true // Default to maintaining aspect ratio
+        };
+        
+        // Check if we're using aspect ratio or resolution
+        if (IsAspectRatioToken(CurrentToken.Type))
+        {
+            // Aspect ratio mode
+            resizeNode.IsAspectRatioMode = true;
+            resizeNode.AspectRatio = CurrentToken.Type;
+            Consume(); // Consume the aspect ratio token
+            
+            Consume(TokenType.EOL);
+        }
+        else if (CurrentToken.Type == TokenType.OPEN_P)
+        {
+            // Resolution mode
+            resizeNode.IsAspectRatioMode = false;
+            Consume(TokenType.OPEN_P);
+            
+            resizeNode.Width = ParseExpression();
+            
+            Consume(TokenType.COMMA);
+            
+            resizeNode.Height = ParseExpression();
+            
+            Consume(TokenType.CLOSE_P);
+            
+            // Check for optional RATIOFALSE
+            if (CurrentToken.Type == TokenType.RATIOFALSE)
+            {
+                resizeNode.MaintainAspectRatio = false;
+                Consume(TokenType.RATIOFALSE);
+            }
+            
+            Consume(TokenType.EOL);
+        }
+        else
+        {
+            throw new SyntaxError($"Expected an aspect ratio (e.g., 16:9) or resolution format (width, height) at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        return resizeNode;
+    }
+
+    private bool IsAspectRatioToken(TokenType type)
+    {
+        return type == TokenType.RATIO_16_9 ||
+            type == TokenType.RATIO_9_16 ||
+            type == TokenType.RATIO_4_3 ||
+            type == TokenType.RATIO_3_4 ||
+            type == TokenType.RATIO_1_1 ||
+            type == TokenType.RATIO_2_3 ||
+            type == TokenType.RATIO_3_2 ||
+            type == TokenType.RATIO_2_1 ||
+            type == TokenType.RATIO_1_2 ||
+            type == TokenType.RATIO_16_10 ||
+            type == TokenType.RATIO_10_16 ||
+            type == TokenType.RATIO_21_9 ||
+            type == TokenType.RATIO_9_21;
     }
 
     private void EnsureImageType(string identifier, string operation)
