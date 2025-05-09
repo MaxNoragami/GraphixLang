@@ -1,5 +1,9 @@
 {
-    BATCH #photos = "C:/vacation/";
+    BATCH #photos = "C:/vacation2021/" + "C:/vacation2025/";
+    BATCH #photos2 = #photos + "C:/vacation2022/";
+    BATCH #photos3 = "C:/vacation2020/" + #photos2;
+    BATCH #photos4 = #photos3 + #photos2;
+
     FOREACH IMG $photo IN #photos {
         INT $width = METADATA $photo FWIDTH;
         INT $height = METADATA $photo FHEIGHT;

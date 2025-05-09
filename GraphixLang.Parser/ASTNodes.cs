@@ -28,6 +28,7 @@ public interface IASTVisitor
     void Visit(VariableReferenceNode node);
     void Visit(OrientationNode node);
     void Visit(MetadataNode node);
+    void Visit(BatchExpressionNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -53,7 +54,17 @@ public class BlockNode : ASTNode
 public class BatchDeclarationNode : ASTNode
 {
     public string Identifier { get; set; }
-    public string Path { get; set; }
+    public ExpressionNode Expression { get; set; }  // Changed from Path (string) to Expression
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class BatchExpressionNode : ExpressionNode
+{
+    public List<ExpressionNode> Terms { get; } = new List<ExpressionNode>();
     
     public override void Accept(IASTVisitor visitor)
     {

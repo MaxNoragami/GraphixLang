@@ -103,31 +103,65 @@ public class Parser
     {
         Consume(TokenType.TYPE_BATCH);
         
-        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("#"))
+        if (CurrentToken.Type != TokenType.BATCH_IDENTIFIER)
         {
             throw new SyntaxError($"Expected a batch identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
-        string identifier = CurrentToken.Value;
-        Consume(TokenType.VAR_IDENTIFIER);
+        string batchIdentifier = CurrentToken.Value;
+        Consume(TokenType.BATCH_IDENTIFIER);
         
         Consume(TokenType.ASSIGN);
         
-        if (CurrentToken.Type != TokenType.STR_VALUE)
-        {
-            throw new SyntaxError($"Expected a string value at line {CurrentToken.Line}, column {CurrentToken.Column}");
-        }
-        
-        string path = CurrentToken.Value.Trim('"');
-        Consume(TokenType.STR_VALUE);
+        ExpressionNode expression = ParseBatchExpression();
         
         Consume(TokenType.EOL);
         
         return new BatchDeclarationNode
         {
-            Identifier = identifier,
-            Path = path
+            Identifier = batchIdentifier,
+            Expression = expression  // Updated to store the full expression
         };
+    }
+
+    private ExpressionNode ParseBatchExpression()
+    {
+        ExpressionNode left = ParseBatchTerm();
+        
+        while (CurrentToken.Type == TokenType.PLUS)
+        {
+            TokenType op = CurrentToken.Type;
+            Consume();
+            
+            ExpressionNode right = ParseBatchTerm();
+            
+            left = new BinaryExpressionNode
+            {
+                Left = left,
+                Operator = op,
+                Right = right
+            };
+        }
+        
+        return left;
+    }
+
+    private ExpressionNode ParseBatchTerm()
+    {
+        if (CurrentToken.Type == TokenType.STR_VALUE)
+        {
+            return ParseLiteral();
+        }
+        else if (CurrentToken.Type == TokenType.BATCH_IDENTIFIER)
+        {
+            string identifier = CurrentToken.Value;
+            Consume(TokenType.BATCH_IDENTIFIER);
+            return new VariableReferenceNode { Identifier = identifier };
+        }
+        else
+        {
+            throw new SyntaxError($"Expected a string value or batch identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
     }
 
     private ForEachNode ParseForEachStatement()
@@ -145,13 +179,14 @@ public class Parser
         
         Consume(TokenType.IN);
         
-        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("#"))
+        // Change this part to check for BATCH_IDENTIFIER instead
+        if (CurrentToken.Type != TokenType.BATCH_IDENTIFIER)
         {
             throw new SyntaxError($"Expected a batch identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
         string batchIdentifier = CurrentToken.Value;
-        Consume(TokenType.VAR_IDENTIFIER);
+        Consume(TokenType.BATCH_IDENTIFIER);  // Changed from VAR_IDENTIFIER to BATCH_IDENTIFIER
         
         var body = ParseBlock();
         

@@ -210,7 +210,7 @@ public class Tokenizer
 
         // Checks if identifiers
         if (word.First() == '$') return new Token(TokenType.VAR_IDENTIFIER, word, _line, _column - word.Length);
-        if (word.First() == '#') return new Token(TokenType.VAR_IDENTIFIER, word, _line, _column - word.Length);   
+        if (word.First() == '#') return new Token(TokenType.BATCH_IDENTIFIER, word, _line, _column - word.Length);
 
         throw new Exception(string.Format("Unexpected word '{0}', at line {1}, column {2}.", word, _line, _column - word.Length));
     }

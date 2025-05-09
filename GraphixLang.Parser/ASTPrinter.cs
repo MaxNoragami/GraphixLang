@@ -69,7 +69,12 @@ public class ASTPrinter : IASTVisitor
     public void Visit(BatchDeclarationNode node)
     {
         AppendIndent();
-        _sb.AppendLine($"BatchDeclaration: {node.Identifier} = \"{node.Path}\"");
+        _sb.Append($"BatchDeclaration: {node.Identifier} = ");
+        
+        // Instead of directly accessing node.Path, visit the Expression
+        node.Expression.Accept(this);
+        
+        _sb.AppendLine();
     }
     
     public void Visit(ForEachNode node)
@@ -206,6 +211,18 @@ public class ASTPrinter : IASTVisitor
         }
     }
     
+    public void Visit(BatchExpressionNode node)
+    {
+        for (int i = 0; i < node.Terms.Count; i++)
+        {
+            node.Terms[i].Accept(this);
+            if (i < node.Terms.Count - 1)
+            {
+                _sb.Append(" + ");
+            }
+        }
+    }
+
     public void Visit(VariableReferenceNode node)
     {
         _sb.Append(node.Identifier);
