@@ -22,5 +22,11 @@
         IF $size > 5000 {
             CROP $photo (800, 600);
         }
+
+        STRIP METADATA $photo ALL;
+        STRIP METADATA $photo GPS, CAMERA, DESCRIPTION;
+        ADD METADATA $photo TAGS "landscape, vacation, summer";
+        ADD METADATA $photo TITLE "Summer Vacation 2025";
+        ADD METADATA $photo COPYRIGHT "© 2025 Max";
     }
 }

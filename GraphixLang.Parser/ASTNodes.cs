@@ -33,6 +33,8 @@ public interface IASTVisitor
     void Visit(WatermarkNode node);
     void Visit(ImageDeclarationNode node);
     void Visit(ImageWatermarkNode node);
+    void Visit(StripMetadataNode node);
+    void Visit(AddMetadataNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -208,6 +210,31 @@ public class HueNode : ASTNode
 {
     public string ImageIdentifier { get; set; }
     public int HueValue { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class StripMetadataNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public bool StripAll { get; set; }
+    public List<TokenType> MetadataTypes { get; } = new List<TokenType>();
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+
+public class AddMetadataNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public TokenType MetadataType { get; set; }
+    public string Value { get; set; }
     
     public override void Accept(IASTVisitor visitor)
     {

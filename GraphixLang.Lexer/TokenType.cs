@@ -47,6 +47,17 @@ public enum TokenType
     WATERMARK,
     HEX_COLOR,
     RGB_COLOR,
+    STRIP,
+    ADD,
+    ALL,
+    TAGS,
+    TITLE,
+    COPYRIGHT,
+    GPS,
+    CAMERA,
+    ADVANCE,
+    ORIGIN,
+    DESCRIPTION,
     
     // Identifier
     VAR_IDENTIFIER, // Either Batch '#' or Var '$'

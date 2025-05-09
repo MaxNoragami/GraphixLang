@@ -87,6 +87,18 @@ public class Parser
                 return ParseAssignmentStatement();
             case TokenType.IF:
                 return ParseIfStatement();
+            case TokenType.STRIP:
+                if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.METADATA)
+                {
+                    return ParseStripMetadataStatement();
+                }
+                throw new SyntaxError($"Unexpected token after STRIP at line {CurrentToken.Line}, column {CurrentToken.Column}");
+            case TokenType.ADD:
+                if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.METADATA)
+                {
+                    return ParseAddMetadataStatement();
+                }
+                throw new SyntaxError($"Unexpected token after ADD at line {CurrentToken.Line}, column {CurrentToken.Column}"); 
             case TokenType.SET:
                 // Need to look ahead to determine whether it's a filter or hue operation
                 string varIdentifier = "";
@@ -215,6 +227,118 @@ public class Parser
         }
         
         return left;
+    }
+
+    private StripMetadataNode ParseStripMetadataStatement()
+    {
+        Consume(TokenType.STRIP);
+        Consume(TokenType.METADATA);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        var node = new StripMetadataNode
+        {
+            ImageIdentifier = imageIdentifier
+        };
+        
+        // Check if ALL or specific metadata types
+        if (CurrentToken.Type == TokenType.ALL)
+        {
+            node.StripAll = true;
+            Consume(TokenType.ALL);
+        }
+        else
+        {
+            // Parse metadata list
+            node.StripAll = false;
+    
+            do
+            {
+                if (!IsValidMetadataType(CurrentToken.Type))
+                {
+                    throw new SyntaxError($"Expected a valid metadata type at line {CurrentToken.Line}, column {CurrentToken.Column}");
+                }
+                
+                node.MetadataTypes.Add(CurrentToken.Type);
+                Consume();
+                
+                // Check if we've reached the end of the list (EOL or another token)
+                if (CurrentToken.Type != TokenType.COMMA)
+                    break;
+                    
+                Consume(TokenType.COMMA);
+                
+                // Check if we have a valid metadata type after the comma
+                if (!IsValidMetadataType(CurrentToken.Type))
+                {
+                    throw new SyntaxError($"Expected a valid metadata type after comma at line {CurrentToken.Line}, column {CurrentToken.Column}");
+                }
+                
+            } while (true);
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return node;
+    }
+
+    private AddMetadataNode ParseAddMetadataStatement()
+    {
+        Consume(TokenType.ADD);
+        Consume(TokenType.METADATA);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        if (CurrentToken.Type != TokenType.TAGS && 
+            CurrentToken.Type != TokenType.TITLE && 
+            CurrentToken.Type != TokenType.COPYRIGHT)
+        {
+            throw new SyntaxError($"Expected TAGS, TITLE or COPYRIGHT at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        TokenType metadataType = CurrentToken.Type;
+        Consume();
+        
+        if (CurrentToken.Type != TokenType.STR_VALUE)
+        {
+            throw new SyntaxError($"Expected a string value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string value = CurrentToken.Value.Trim('"');
+        Consume(TokenType.STR_VALUE);
+        
+        Consume(TokenType.EOL);
+        
+        return new AddMetadataNode
+        {
+            ImageIdentifier = imageIdentifier,
+            MetadataType = metadataType,
+            Value = value
+        };
+    }
+
+    private bool IsValidMetadataType(TokenType type)
+    {
+        return type == TokenType.GPS ||
+            type == TokenType.CAMERA ||
+            type == TokenType.ADVANCE ||
+            type == TokenType.ORIGIN ||
+            type == TokenType.DESCRIPTION ||
+            type == TokenType.TAGS ||
+            type == TokenType.TITLE ||
+            type == TokenType.COPYRIGHT;
     }
 
     private ExpressionNode ParseBatchTerm()

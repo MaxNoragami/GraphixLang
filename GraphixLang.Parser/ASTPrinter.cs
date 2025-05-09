@@ -125,6 +125,29 @@ public class ASTPrinter : IASTVisitor
         _sb.AppendLine($"ImageWatermark: {node.ImageIdentifier} with {node.WatermarkImageIdentifier}, transparency: {node.Transparency}");
     }
 
+    public void Visit(StripMetadataNode node)
+    {
+        AppendIndent();
+        _sb.Append($"StripMetadata: {node.ImageIdentifier} ");
+        
+        if (node.StripAll)
+        {
+            _sb.Append("ALL");
+        }
+        else
+        {
+            _sb.Append(string.Join(", ", node.MetadataTypes.Select(GetMetadataTypeName)));
+        }
+        
+        _sb.AppendLine();
+    }
+
+    public void Visit(AddMetadataNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"AddMetadata: {node.ImageIdentifier} {GetMetadataTypeName(node.MetadataType)} \"{node.Value}\"");
+    }
+
     public void Visit(AssignmentNode node)
     {
         AppendIndent();
@@ -301,6 +324,14 @@ public class ASTPrinter : IASTVisitor
             case TokenType.FHEIGHT: return "FHEIGHT";
             case TokenType.FNAME: return "FNAME";
             case TokenType.FSIZE: return "FSIZE";
+            case TokenType.GPS: return "GPS";
+            case TokenType.CAMERA: return "CAMERA";
+            case TokenType.ADVANCE: return "ADVANCE";
+            case TokenType.ORIGIN: return "ORIGIN";
+            case TokenType.DESCRIPTION: return "DESCRIPTION";
+            case TokenType.TAGS: return "TAGS";
+            case TokenType.TITLE: return "TITLE";
+            case TokenType.COPYRIGHT: return "COPYRIGHT";
             default: return type.ToString();
         }
     }

@@ -224,6 +224,17 @@ public class Tokenizer
             case "ROTATE": return new Token(TokenType.ROTATE, word, _line, _column - word.Length);
             case "HUE": return new Token(TokenType.HUE, word, _line, _column - word.Length);
             case "WATERMARK": return new Token(TokenType.WATERMARK, word, _line, _column - word.Length);
+            case "STRIP": return new Token(TokenType.STRIP, word, _line, _column - word.Length);
+            case "ADD": return new Token(TokenType.ADD, word, _line, _column - word.Length);
+            case "ALL": return new Token(TokenType.ALL, word, _line, _column - word.Length);
+            case "TAGS": return new Token(TokenType.TAGS, word, _line, _column - word.Length);
+            case "TITLE": return new Token(TokenType.TITLE, word, _line, _column - word.Length);
+            case "COPYRIGHT": return new Token(TokenType.COPYRIGHT, word, _line, _column - word.Length);
+            case "GPS": return new Token(TokenType.GPS, word, _line, _column - word.Length);
+            case "CAMERA": return new Token(TokenType.CAMERA, word, _line, _column - word.Length);
+            case "ADVANCE": return new Token(TokenType.ADVANCE, word, _line, _column - word.Length);
+            case "ORIGIN": return new Token(TokenType.ORIGIN, word, _line, _column - word.Length);
+            case "DESCRIPTION": return new Token(TokenType.DESCRIPTION, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers
