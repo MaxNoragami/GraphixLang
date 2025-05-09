@@ -12,7 +12,8 @@
 				<ROTATE_OP> |
 				<FOREACH_OP> |
 				<CONDITIONAL_OP> |
-                <ORIENTATION_OP>
+                <ORIENTATION_OP> |
+                <HUE_OP>
 
 
 // From <STATEMENT>
@@ -28,6 +29,8 @@
 <METADATA_OP> ::= <VAR_IDENTIFIER> <ASSIGN> <METADATA> <VAR_IDENTIFIER> <FIELD> <EOL>
 
 <FILTER_OP> ::= <SET> <VAR_IDENTIFIER> <FILER_TYPE> <EOL>
+
+<HUE_OP> ::= <SET> <VAR_IDENTIFIER> <HUE> <INT_VALUE> <EOL>
 
 <CROP_OP> ::= <CROP> <VAR_IDENTIFIER> <RESOULTION> <EOL>
 
@@ -149,6 +152,8 @@
 <BATCH_SYMBOL> ::= '#'
 
 <EOL> ::= ';'
+
+<HUE> ::= 'HUE'
 
 <EMPTY> ::= ''
 

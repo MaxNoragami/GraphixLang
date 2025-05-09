@@ -87,7 +87,26 @@ public class Parser
             case TokenType.IF:
                 return ParseIfStatement();
             case TokenType.SET:
-                return ParseSetStatement();
+                // Need to look ahead to determine whether it's a filter or hue operation
+                string varIdentifier = "";
+                if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.VAR_IDENTIFIER)
+                {
+                    varIdentifier = _tokens[_position + 1].Value;
+                    
+                    if (_position + 2 < _tokens.Count)
+                    {
+                        // Check the token after the variable identifier to determine operation type
+                        if (_tokens[_position + 2].Type == TokenType.HUE)
+                        {
+                            return ParseHueStatement();
+                        }
+                        else
+                        {
+                            return ParseSetStatement();
+                        }
+                    }
+                }
+                return ParseSetStatement(); // Default to filter if we can't determine
             case TokenType.ROTATE:
                 return ParseRotateStatement();
             case TokenType.CROP:
@@ -162,6 +181,45 @@ public class Parser
         {
             throw new SyntaxError($"Expected a string value or batch identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
+    }
+
+    private HueNode ParseHueStatement()
+    {
+        Consume(TokenType.SET);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        Consume(TokenType.HUE);
+        
+        // Check that the next token is a valid integer value
+        if (CurrentToken.Type != TokenType.INT_VALUE)
+        {
+            throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        // Parse the hue value
+        int hueValue = int.Parse(CurrentToken.Value);
+        Consume(TokenType.INT_VALUE);
+        
+        // Validate that the hue value is in the range 0-360
+        if (hueValue < 0 || hueValue > 360)
+        {
+            throw new SyntaxError($"Hue value must be between 0 and 360 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return new HueNode
+        {
+            ImageIdentifier = imageIdentifier,
+            HueValue = hueValue
+        };
     }
 
     private ForEachNode ParseForEachStatement()

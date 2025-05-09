@@ -76,6 +76,12 @@ public class ASTPrinter : IASTVisitor
         
         _sb.AppendLine();
     }
+
+    public void Visit(HueNode node)
+    {
+        AppendIndent();
+        _sb.AppendLine($"Hue: {node.ImageIdentifier} {node.HueValue}");
+    }
     
     public void Visit(ForEachNode node)
     {

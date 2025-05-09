@@ -12,9 +12,11 @@
         
         IF $width > $height {
             ORIENTATION $photo LANDSCAPE;
+            SET $photo HUE 120;
         }
         ELSE {
             ORIENTATION $photo PORTRAIT;
+            SET $photo HUE 240;
         }
         
         IF $size > 5000 {

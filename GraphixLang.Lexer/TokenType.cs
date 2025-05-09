@@ -25,6 +25,7 @@ public enum TokenType
     ROTATE,
     LANDSCAPE,
     PORTRAIT,
+    HUE,
 
 
     // Types

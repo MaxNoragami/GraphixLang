@@ -206,6 +206,7 @@ public class Tokenizer
             case "LANDSCAPE": return new Token(TokenType.LANDSCAPE, word, _line, _column - word.Length);
             case "PORTRAIT": return new Token(TokenType.PORTRAIT, word, _line, _column - word.Length);
             case "ROTATE": return new Token(TokenType.ROTATE, word, _line, _column - word.Length);
+            case "HUE": return new Token(TokenType.HUE, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers

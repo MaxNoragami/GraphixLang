@@ -29,6 +29,7 @@ public interface IASTVisitor
     void Visit(OrientationNode node);
     void Visit(MetadataNode node);
     void Visit(BatchExpressionNode node);
+    void Visit(HueNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -169,6 +170,17 @@ public class OrientationNode : ASTNode
 {
     public string ImageIdentifier { get; set; }
     public TokenType OrientationType { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class HueNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public int HueValue { get; set; }
     
     public override void Accept(IASTVisitor visitor)
     {
