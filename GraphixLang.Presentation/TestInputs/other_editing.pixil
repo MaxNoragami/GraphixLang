@@ -21,6 +21,6 @@
         }
 
         WATERMARK $img "MY BRAND NAME" ~H000000~;
-        WATERMARK $photo $watermark 128;
+        WATERMARK $img $watermark 128;
     }
 }
