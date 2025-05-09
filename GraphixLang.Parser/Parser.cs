@@ -93,6 +93,8 @@ public class Parser
                 return ParseRenameStatement();
             case TokenType.EXPORT:
                 return ParseExportStatement();
+            case TokenType.WEBOPTIMIZE:
+                return ParseWebOptimizeStatement();
             case TokenType.CONVERT:
                 return ParseConvertStatement();
             case TokenType.RESIZE:
@@ -1553,6 +1555,64 @@ public class Parser
             ImageIdentifier = imageIdentifier,
             Value = value
         };
+    }
+
+    private WebOptimizeNode ParseWebOptimizeStatement()
+    {
+        Consume(TokenType.WEBOPTIMIZE);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        // Type check: ensure imageIdentifier is an IMG
+        EnsureImageType(imageIdentifier, "WEBOPTIMIZE");
+        
+        var node = new WebOptimizeNode
+        {
+            ImageIdentifier = imageIdentifier
+        };
+        
+        // Check optimization mode
+        if (CurrentToken.Type == TokenType.LOSSLESS)
+        {
+            node.IsLossless = true;
+            Consume(TokenType.LOSSLESS);
+        }
+        else if (CurrentToken.Type == TokenType.LOSSY)
+        {
+            node.IsLossless = false;
+            Consume(TokenType.LOSSY);
+            
+            // Parse quality value for LOSSY mode
+            if (CurrentToken.Type != TokenType.INT_VALUE)
+            {
+                throw new SyntaxError($"Expected an integer value (0-100) for lossy quality at line {CurrentToken.Line}, column {CurrentToken.Column}");
+            }
+            
+            int quality = int.Parse(CurrentToken.Value);
+            Consume(TokenType.INT_VALUE);
+            
+            // Validate quality range
+            if (quality < 0 || quality > 100)
+            {
+                throw new SyntaxError($"Lossy quality value must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
+            }
+            
+            node.Quality = quality;
+        }
+        else
+        {
+            throw new SyntaxError($"Expected LOSSLESS or LOSSY at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return node;
     }
 
     private OpacityNode ParseOpacityStatement()

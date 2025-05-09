@@ -349,6 +349,9 @@ public class Tokenizer
             case "NOISE": return new Token(TokenType.NOISE, word, _line, _column - word.Length);
             case "BLUR": return new Token(TokenType.BLUR, word, _line, _column - word.Length);
             case "PIXELATE": return new Token(TokenType.PIXELATE, word, _line, _column - word.Length);
+            case "WEBOPTIMIZE": return new Token(TokenType.WEBOPTIMIZE, word, _line, _column - word.Length);
+            case "LOSSLESS": return new Token(TokenType.LOSSLESS, word, _line, _column - word.Length);
+            case "LOSSY": return new Token(TokenType.LOSSY, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers

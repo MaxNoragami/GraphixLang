@@ -478,6 +478,19 @@ public class ASTPrinter : IASTVisitor
         }
     }
 
+    public void Visit(WebOptimizeNode node)
+    {
+        AppendIndent();
+        if (node.IsLossless)
+        {
+            _sb.AppendLine($"WebOptimize: {node.ImageIdentifier} LOSSLESS");
+        }
+        else
+        {
+            _sb.AppendLine($"WebOptimize: {node.ImageIdentifier} LOSSY quality: {node.Quality}");
+        }
+    }
+
     public void Visit(BrightnessNode node)
     {
         AppendIndent();

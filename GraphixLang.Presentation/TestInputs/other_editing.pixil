@@ -26,7 +26,11 @@
         RESIZE $img (800, 600);
         RESIZE $img (800, 600) RATIOFALSE;
         RESIZE $img 16:9;
+
+        WEBOPTIMIZE $img LOSSLESS;
     }
+
+    WEBOPTIMIZE $watermark LOSSY 93;
 
     EXPORT $watermark TO "C:/processed_photos/" OGKEEP;
     EXPORT $watermark TO "C:/processed_photos/" OGDELETE;

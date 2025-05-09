@@ -47,6 +47,7 @@ public interface IASTVisitor
     void Visit(NoiseNode node);
     void Visit(BlurNode node);
     void Visit(PixelateNode node);
+    void Visit(WebOptimizeNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -62,6 +63,18 @@ public class ProgramNode : ASTNode
 public class BlockNode : ASTNode
 {
     public List<ASTNode> Statements { get; } = new List<ASTNode>();
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public class WebOptimizeNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public bool IsLossless { get; set; }
+    public int Quality { get; set; }  // Only used in LOSSY mode
     
     public override void Accept(IASTVisitor visitor)
     {
