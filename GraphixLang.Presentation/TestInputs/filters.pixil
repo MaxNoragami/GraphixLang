@@ -1,16 +1,22 @@
 {
     IMG $photo = "C:/images/photo.jpg";
 
+    // Adjust brightness (0-200)
     SET $photo BRIGHTNESS 120;
     
+    // Adjust contrast (0-200)
     SET $photo CONTRAST 70;
     
+    // Adjust opacity (0-100)
     SET $photo OPACITY 90;
     
+    // Add noise (0-100)
     SET $photo NOISE 30;
     
+    // Apply blur (0-100)
     SET $photo BLUR 3;
     
+    // Apply pixelation (1-100)
     SET $photo PIXELATE 10;
 
     EXPORT $photo TO "C:/processed_photos/" OGKEEP;

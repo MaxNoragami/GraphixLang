@@ -29,7 +29,21 @@ public class Tokenizer
         {
             char current = _input[_position];
 
-            // Skip whitespaces
+            // Skip comments
+            if (current == '/' && _position + 1 < _input.Length && _input[_position + 1] == '/')
+            {
+                // Skip to the end of the line
+                while (_position < _input.Length && _input[_position] != '\n' && _input[_position] != '\r')
+                {
+                    _position++;
+                    _column++;
+                }
+                // Now we're at the end of the line or EOF, continue to the next iteration
+                // which will handle the newline character(s) or EOF
+                continue;
+            }
+
+            // Skip whitespaces (existing code)
             if (char.IsWhiteSpace(current))
             {
                 // Checks for line feed encounters
