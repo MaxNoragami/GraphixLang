@@ -87,6 +87,8 @@ public class Parser
                 return ParseAssignmentStatement();
             case TokenType.IF:
                 return ParseIfStatement();
+            case TokenType.RENAME:
+                return ParseRenameStatement();
             case TokenType.STRIP:
                 if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.METADATA)
                 {
@@ -327,6 +329,83 @@ public class Parser
             MetadataType = metadataType,
             Value = value
         };
+    }
+
+    private RenameNode ParseRenameStatement()
+    {
+        Consume(TokenType.RENAME);
+        
+        if (CurrentToken.Type != TokenType.VAR_IDENTIFIER || !CurrentToken.Value.StartsWith("$"))
+        {
+            throw new SyntaxError($"Expected a variable identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        string imageIdentifier = CurrentToken.Value;
+        Consume(TokenType.VAR_IDENTIFIER);
+        
+        var node = new RenameNode
+        {
+            ImageIdentifier = imageIdentifier
+        };
+        
+        // Parse the rename expression (a sequence of terms connected by '+')
+        node.Terms.Add(ParseRenameTerm());
+        
+        while (CurrentToken.Type == TokenType.PLUS)
+        {
+            Consume(TokenType.PLUS);
+            node.Terms.Add(ParseRenameTerm());
+        }
+        
+        // Validate that at least one term is a METADATA FNAME reference
+        bool hasOriginalFilename = false;
+        foreach (var term in node.Terms)
+        {
+            if (term.Type == RenameTermType.METADATA && 
+                term.MetadataValue.MetadataType == TokenType.FNAME)
+            {
+                hasOriginalFilename = true;
+                break;
+            }
+        }
+        
+        if (!hasOriginalFilename)
+        {
+            throw new SyntaxError($"RENAME operation must include the original filename (METADATA $photo FNAME) at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        Consume(TokenType.EOL);
+        
+        return node;
+    }
+
+    private RenameTermNode ParseRenameTerm()
+    {
+        var termNode = new RenameTermNode();
+        
+        switch (CurrentToken.Type)
+        {
+            case TokenType.STR_VALUE:
+                termNode.Type = RenameTermType.STRING;
+                termNode.StringValue = CurrentToken.Value.Trim('"');
+                Consume(TokenType.STR_VALUE);
+                break;
+                
+            case TokenType.COUNTER:
+                termNode.Type = RenameTermType.COUNTER;
+                Consume(TokenType.COUNTER);
+                break;
+                
+            case TokenType.METADATA:
+                termNode.Type = RenameTermType.METADATA;
+                termNode.MetadataValue = ParseMetadataExpression();
+                break;
+                
+            default:
+                throw new SyntaxError($"Expected a string, COUNTER or METADATA at line {CurrentToken.Line}, column {CurrentToken.Column}");
+        }
+        
+        return termNode;
     }
 
     private bool IsValidMetadataType(TokenType type)

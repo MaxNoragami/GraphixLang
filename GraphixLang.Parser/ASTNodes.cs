@@ -35,6 +35,8 @@ public interface IASTVisitor
     void Visit(ImageWatermarkNode node);
     void Visit(StripMetadataNode node);
     void Visit(AddMetadataNode node);
+    void Visit(RenameNode node);
+    void Visit(RenameTermNode node);
 }
 
 public class ProgramNode : ASTNode
@@ -296,6 +298,37 @@ public class MetadataNode : ExpressionNode
 {
     public string ImageIdentifier { get; set; }
     public TokenType MetadataType { get; set; }
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+public enum RenameTermType
+{
+    STRING,
+    COUNTER,
+    METADATA
+}
+
+public class RenameTermNode : ASTNode
+{
+    public RenameTermType Type { get; set; }
+    public string StringValue { get; set; }  // For string literals
+    public MetadataNode MetadataValue { get; set; }  // For metadata expressions
+    
+    public override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+
+
+public class RenameNode : ASTNode
+{
+    public string ImageIdentifier { get; set; }
+    public List<RenameTermNode> Terms { get; } = new List<RenameTermNode>();
     
     public override void Accept(IASTVisitor visitor)
     {

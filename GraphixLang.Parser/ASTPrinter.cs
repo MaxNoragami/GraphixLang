@@ -354,6 +354,42 @@ public class ASTPrinter : IASTVisitor
         }
     }
 
+    public void Visit(RenameNode node)
+    {
+        AppendIndent();
+        _sb.Append($"Rename: {node.ImageIdentifier} to ");
+        
+        for (int i = 0; i < node.Terms.Count; i++)
+        {
+            node.Terms[i].Accept(this);
+            
+            if (i < node.Terms.Count - 1)
+            {
+                _sb.Append(" + ");
+            }
+        }
+        
+        _sb.AppendLine();
+    }
+
+    public void Visit(RenameTermNode node)
+    {
+        switch (node.Type)
+        {
+            case RenameTermType.STRING:
+                _sb.Append($"\"{node.StringValue}\"");
+                break;
+                
+            case RenameTermType.COUNTER:
+                _sb.Append("COUNTER");
+                break;
+                
+            case RenameTermType.METADATA:
+                node.MetadataValue.Accept(this);
+                break;
+        }
+    }
+
     private string GetOrientationTypeName(TokenType type)
     {
         switch (type)

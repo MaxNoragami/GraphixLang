@@ -54,6 +54,8 @@ public enum TokenType
     TITLE,
     COPYRIGHT,
     GPS,
+    RENAME,
+    COUNTER,
     CAMERA,
     ADVANCE,
     ORIGIN,

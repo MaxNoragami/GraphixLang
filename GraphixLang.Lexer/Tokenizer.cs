@@ -235,6 +235,8 @@ public class Tokenizer
             case "ADVANCE": return new Token(TokenType.ADVANCE, word, _line, _column - word.Length);
             case "ORIGIN": return new Token(TokenType.ORIGIN, word, _line, _column - word.Length);
             case "DESCRIPTION": return new Token(TokenType.DESCRIPTION, word, _line, _column - word.Length);
+            case "RENAME": return new Token(TokenType.RENAME, word, _line, _column - word.Length);
+            case "COUNTER": return new Token(TokenType.COUNTER, word, _line, _column - word.Length);
         }
 
         // Checks if identifiers

@@ -28,5 +28,8 @@
         ADD METADATA $photo TAGS "landscape, vacation, summer";
         ADD METADATA $photo TITLE "Summer Vacation 2025";
         ADD METADATA $photo COPYRIGHT "© 2025 Max";
+
+        RENAME $photo METADATA $photo FNAME + "_2025";
+        RENAME $photo "MD" + COUNTER + "_" + METADATA $photo FNAME;
     }
 }
