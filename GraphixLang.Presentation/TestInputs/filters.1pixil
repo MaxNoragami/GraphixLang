@@ -1,5 +1,5 @@
 {
-    IMG $photo = "C:/images/photo.jpg";
+    IMG $photo = "/Users/mcittkmims/Documents/images/Image_created_with_a_mobile_phone.png";
 
     // Adjust brightness (0-200)
     SET $photo BRIGHTNESS 120;
@@ -22,5 +22,5 @@
     // Reduce to 32 colors for a retro effect
     QUANTIZE $photo 32;
 
-    EXPORT $photo TO "C:/processed_photos/" OGKEEP;
+    EXPORT $photo TO "/Users/mcittkmims/Documents/processed_photos/" OGKEEP;
 }

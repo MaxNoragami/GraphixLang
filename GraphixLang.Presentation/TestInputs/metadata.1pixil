@@ -1,10 +1,10 @@
 {
-    BATCH #photos = "C:/vacation2021/" + "C:/vacation2025/";
-    BATCH #photos2 = #photos + "C:/vacation2022/";
+    BATCH #photos = "/Users/mcittkmims/Documents/images/" + "/Users/mcittkmims/Documents/images1/";
+    BATCH #photos2 = #photos + "/Users/mcittkmims/Documents/images3/";
     BATCH #photos3 = "C:/vacation2020/" + #photos2;
     BATCH #photos4 = #photos3 + #photos2;
 
-    FOREACH IMG $photo IN #photos EXPORT TO "C:/processed_photos/" {
+    FOREACH IMG $photo IN #photos EXPORT TO "/Users/mcittkmims/Documents/processed_photos/" {
         INT $width = METADATA $photo FWIDTH;
         INT $height = METADATA $photo FHEIGHT;
         STRING $name = METADATA $photo FNAME;
