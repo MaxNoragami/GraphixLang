@@ -1,14 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\GraphixLang.Parser\GraphixLang.Parser.csproj" />
-  </ItemGroup>
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GraphixLang.Lexer\GraphixLang.Lexer.csproj" />
+    <ProjectReference Include="..\GraphixLang.Parser\GraphixLang.Parser.csproj" />
+    <ProjectReference Include="..\GraphixLang.Integration\GraphixLang.Integration.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestInputs\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

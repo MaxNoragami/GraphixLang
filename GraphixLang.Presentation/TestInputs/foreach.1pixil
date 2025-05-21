@@ -1,6 +1,6 @@
 {
-    BATCH #mybatch = "images/";
-    FOREACH IMG $img IN #mybatch EXPORT TO "C:/processed_photos/" {
+    BATCH #mybatch = "/Users/mcittkmims/Documents/images/";
+    FOREACH IMG $img IN #mybatch EXPORT TO "/Users/mcittkmims/Documents/processed_photos/" {
         SET $img SEPIA;
         ROTATE $img LEFT;
         CROP $img (100, 200);
