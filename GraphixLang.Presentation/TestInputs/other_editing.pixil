@@ -1,8 +1,8 @@
 {
-    BATCH #rawImages = "/Users/mcittkmims/Documents/images3/";
-    IMG $watermark = "/Users/mcittkmims/Documents/watermark/watermark.png";
-
-    FOREACH IMG $img IN #rawImages EXPORT TO "/Users/mcittkmims/Documents/processed_photos/" {
+    BATCH #rawImages = "C:\Users\max\Documents\GitHubForks\GraphixLang\GraphixLang.Presentation\TestImgs\Input";
+    IMG $watermark = "C:\Users\max\Documents\GitHubForks\GraphixLang\GraphixLang.Presentation\TestImgs\Watermark\watermark.png";
+        
+    FOREACH IMG $img IN #rawImages EXPORT TO "C:\Users\max\Documents\GitHubForks\GraphixLang\GraphixLang.Presentation\TestImgs\Output" {
         INT $width = METADATA $img FWIDTH;
         INT $height = METADATA $img FHEIGHT;
         
@@ -32,6 +32,6 @@
 
     WEBOPTIMIZE $watermark LOSSY 93;
 
-    EXPORT $watermark TO "/Users/mcittkmims/Documents/processed_photos/" OGKEEP;
-    EXPORT $watermark TO "/Users/mcittkmims/Documents/processed_photos/" OGDELETE;
+    EXPORT $watermark TO "C:\Users\max\Documents\GitHubForks\GraphixLang\GraphixLang.Presentation\TestImgs\Output" OGKEEP;
+    // EXPORT $watermark TO "C:\Users\max\Documents\GitHubForks\GraphixLang\GraphixLang.Presentation\TestImgs\Output" OGDELETE;
 }
