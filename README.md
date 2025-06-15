@@ -20,10 +20,6 @@ GraphixLang is a domain-specific language designed for batch image processing an
 - .NET 9.0 SDK or later
 - Compatible with Windows, macOS, and Linux
 
-### Python Requirements
-- Python 3.7 or higher
-- pip package manager
-
 ## Installation
 
 ### 1. Clone the Repository
@@ -37,17 +33,6 @@ cd GraphixLang
 dotnet build GraphixLang.sln
 ```
 
-### 3. Install Python Dependencies
-The application will automatically attempt to install required Python packages, but you can install them manually:
-
-```bash
-pip install pillow>=9.0.0 piexif
-```
-
-Or using the requirements file:
-```bash
-pip install -r GraphixLang.Interpreter/requirements.txt
-```
 
 ## Running GraphixLang
 
@@ -60,11 +45,19 @@ dotnet run
 ```
 
 This will:
-1. Check and install Python dependencies automatically
-2. Process all `.pixil` files in the `TestInputs` directory
-3. Show tokenization, parsing, and execution results
+1. Process all `.pixil` files in the `TestInputs` directory
+2. Show tokenization, parsing, and execution results
 
-**Important**: The application only processes files with the `.pixil` extension. Example files are provided with `.1pixil` extensions to prevent them from running by default (since they use placeholder paths).
+You can also specify a specific pixil file to process using command-line arguments:
+
+```bash
+dotnet run path/to/your/program.pixil
+```
+
+**Important**: 
+- The application processes files with the `.pixil` extension
+- When specifying a pixil file via command line, all relative file paths in your program will be relative to the location of that pixil file
+- Example files are provided with `.1pixil` extensions to prevent them from running by default (since they use placeholder paths)
 
 ### Managing Test Files
 - **To test existing examples**: Rename files from `.1pixil` to `.pixil` (e.g., `filters.1pixil` → `filters.pixil`)
@@ -171,11 +164,9 @@ The `TestInputs` directory contains several example programs (with `.1pixil` ext
 GraphixLang/
 ├── GraphixLang.Lexer/          # Tokenization and lexical analysis
 ├── GraphixLang.Parser/         # Syntax parsing and AST generation  
-├── GraphixLang.Integration/    # C# to Python bridge
-├── GraphixLang.Interpreter/    # Python execution engine
+├── GraphixLang.Interpreter/    # Execution engine
 ├── GraphixLang.Presentation/   # Console application and examples
-├── TestImgs/                   # Example images to process
-└── TestInputs/                 # Example .pixil programs
+└── TestImgs/                   # Example images to process
 ```
 
 ## Troubleshooting
@@ -185,23 +176,15 @@ GraphixLang/
 - **Examples not working**: Update file paths in the `.pixil` files to match your actual directories
 - **Missing input images**: Ensure your specified input directories contain valid image files
 
-### Python Path Issues
-If you encounter Python path errors, ensure Python 3.7+ is installed and accessible via:
-- `/usr/bin/python3` (default on macOS/Linux)
-- `python` command (Windows)
-
-### Missing Dependencies
-Run the dependency check manually:
-```bash
-python -c "import PIL, piexif; print('Dependencies OK')"
-```
-
 ### File Permission Errors
 Ensure the application has read/write permissions for:
 - Input image directories
 - Output/export directories
 - Temporary file locations
 
+### Path Configuration
+- Ensure input directories exist and contain image files before running
+- Create output directories or ensure they're writable
 ### Path Configuration
 - Ensure input directories exist and contain image files before running
 - Create output directories or ensure they're writable
