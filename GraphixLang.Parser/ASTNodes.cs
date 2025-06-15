@@ -6,7 +6,7 @@ public abstract class ASTNode
 {
     public virtual void Accept(IASTVisitor visitor)
     {
-        // Base implementation does nothing
+        
     }
 }
 
@@ -64,7 +64,7 @@ public class ProgramNode : ASTNode
 public class QuantizeNode : ASTNode
 {
     public string ImageIdentifier { get; set; }
-    public int Colors { get; set; }  // Number of colors (0-255)
+    public int Colors { get; set; }  
     
     public override void Accept(IASTVisitor visitor)
     {
@@ -86,7 +86,7 @@ public class WebOptimizeNode : ASTNode
 {
     public string ImageIdentifier { get; set; }
     public bool IsLossless { get; set; }
-    public int Quality { get; set; }  // Only used in LOSSY mode
+    public int Quality { get; set; }  
     
     public override void Accept(IASTVisitor visitor)
     {
@@ -178,7 +178,7 @@ public class WatermarkNode : ASTNode
 public class BatchDeclarationNode : ASTNode
 {
     public string Identifier { get; set; }
-    public ExpressionNode Expression { get; set; }  // Changed from Path (string) to Expression
+    public ExpressionNode Expression { get; set; }  
     
     public override void Accept(IASTVisitor visitor)
     {
@@ -212,11 +212,11 @@ public class ConvertNode : ASTNode
 public class ResizeNode : ASTNode
 {
     public string ImageIdentifier { get; set; }
-    public ExpressionNode Width { get; set; }     // Only used for resolution mode
-    public ExpressionNode Height { get; set; }    // Only used for resolution mode
-    public TokenType AspectRatio { get; set; }    // Only used for aspect ratio mode
-    public bool MaintainAspectRatio { get; set; } // True by default, false if RATIOFALSE is specified
-    public bool IsAspectRatioMode { get; set; }   // True if using aspect ratio, false if using resolution
+    public ExpressionNode Width { get; set; }     
+    public ExpressionNode Height { get; set; }    
+    public TokenType AspectRatio { get; set; }    
+    public bool MaintainAspectRatio { get; set; } 
+    public bool IsAspectRatioMode { get; set; }   
     
     public override void Accept(IASTVisitor visitor)
     {
@@ -227,7 +227,7 @@ public class ResizeNode : ASTNode
 public class CompressNode : ASTNode
 {
     public string ImageIdentifier { get; set; }
-    public int Quality { get; set; }  // 0-100
+    public int Quality { get; set; }  
     
     public override void Accept(IASTVisitor visitor)
     {
@@ -260,7 +260,7 @@ public class ForEachNode : ASTNode
 {
     public string VarIdentifier { get; set; }
     public string BatchIdentifier { get; set; }
-    public string ExportPath { get; set; }  // Required export path
+    public string ExportPath { get; set; }  
     public BlockNode Body { get; set; }
     
     public override void Accept(IASTVisitor visitor)
@@ -399,7 +399,7 @@ public class AddMetadataNode : ASTNode
 
 public abstract class ExpressionNode : ASTNode
 {
-    // Base class for expressions
+    
 }
 
 public class BinaryExpressionNode : ExpressionNode
@@ -468,8 +468,8 @@ public enum RenameTermType
 public class RenameTermNode : ASTNode
 {
     public RenameTermType Type { get; set; }
-    public string StringValue { get; set; }  // For string literals
-    public MetadataNode MetadataValue { get; set; }  // For metadata expressions
+    public string StringValue { get; set; }  
+    public MetadataNode MetadataValue { get; set; }  
     public bool IsReplace { get; set; }
     public char FromTerm { get; set; }
     public string ToTerm { get; set; }

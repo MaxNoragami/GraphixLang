@@ -2,7 +2,7 @@ namespace GraphixLang.Lexer;
 
 public enum TokenType
 {
-    // Reserved Keywords
+    
     IN,
     FOREACH,
     FSIZE,
@@ -46,7 +46,7 @@ public enum TokenType
     PIXELATE,
 
 
-    // Types
+    
     TYPE_BATCH,
     TYPE_IMG,
     TYPE_STR,
@@ -56,7 +56,7 @@ public enum TokenType
     TYPE_PXLS,
 
 
-    // Values
+    
     PXLS_VALUE,
     STR_VALUE,
     BOOL_VALUE,
@@ -85,26 +85,26 @@ public enum TokenType
     TIFF,
     BMP,
 
-    // Aspect Ratios
-    RATIO_16_9,    // 16:9
-    RATIO_9_16,    // 9:16
-    RATIO_4_3,     // 4:3
-    RATIO_3_4,     // 3:4
-    RATIO_1_1,     // 1:1
-    RATIO_2_3,     // 2:3
-    RATIO_3_2,     // 3:2
-    RATIO_2_1,     // 2:1
-    RATIO_1_2,     // 1:2
-    RATIO_16_10,   // 16:10
-    RATIO_10_16,   // 10:16
-    RATIO_21_9,    // 21:9
-    RATIO_9_21,    // 9:21
     
-    // Identifier
-    VAR_IDENTIFIER, // Either Batch '#' or Var '$'
+    RATIO_16_9,    
+    RATIO_9_16,    
+    RATIO_4_3,     
+    RATIO_3_4,     
+    RATIO_1_1,     
+    RATIO_2_3,     
+    RATIO_3_2,     
+    RATIO_2_1,     
+    RATIO_1_2,     
+    RATIO_16_10,   
+    RATIO_10_16,   
+    RATIO_21_9,    
+    RATIO_9_21,    
+    
+    
+    VAR_IDENTIFIER, 
     BATCH_IDENTIFIER,
     
-    // Symbols
+    
     CLOSE_P,
     OPEN_P,
     COMMA,
@@ -123,7 +123,7 @@ public enum TokenType
     PLUS,
     
 
-    // SPECIAL
+    
     EOL,
     EOF
 }

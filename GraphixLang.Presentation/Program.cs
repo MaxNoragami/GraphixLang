@@ -13,7 +13,7 @@ namespace GraphixLang.Presentation
         {
             if (args.Length > 0)
             {
-                // Process the specified file path
+                
                 string filePath = args[0];
                 
                 if (!File.Exists(filePath))
@@ -22,7 +22,7 @@ namespace GraphixLang.Presentation
                     return;
                 }
                 
-                // Get the directory containing the file to use as the base directory
+                
                 string baseDir = Path.GetDirectoryName(Path.GetFullPath(filePath));
                 Console.WriteLine($"Using base directory: {baseDir}");
                 
@@ -30,7 +30,7 @@ namespace GraphixLang.Presentation
             }
             else
             {
-                // No args provided - fall back to processing all files in TestInputs directory
+                
                 Console.WriteLine("No file path provided. Processing all files in TestInputs directory.");
                 var testInputDir = Directory.EnumerateFiles("TestInputs");
 
@@ -55,7 +55,7 @@ namespace GraphixLang.Presentation
 
             try
             {
-                // Tokenization Process
+                
                 Tokenizer lexer = new Tokenizer(input);
                 List<Token> tokens = lexer.Tokenize();
 
@@ -63,21 +63,21 @@ namespace GraphixLang.Presentation
                 foreach (var token in tokens)
                     Console.WriteLine($"{token.Type}: '{token.Value}' at line {token.Line}, column {token.Column}");
 
-                // Parsing Process
+                
                 var parser = new ParserNamespace.Parser(tokens);
                 ParserNamespace.ProgramNode ast = parser.Parse();
 
-                // Print the AST
+                
                 ParserNamespace.ASTPrinter printer = new ParserNamespace.ASTPrinter();
                 string astString = printer.Print(ast);
                 Console.WriteLine("\nAbstract Syntax Tree:");
                 Console.WriteLine(astString);
 
-                // Execute using the C# interpreter
+                
                 Console.WriteLine("\nExecuting using C# interpreter...");
                 try
                 {
-                    // Pass the base directory to the interpreter
+                    
                     var interpreter = new GraphixInterpreter(baseDir);
                     string result = interpreter.ExecuteAst(ast);
                     Console.WriteLine("\nExecution result:");

@@ -12,11 +12,6 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.Fonts;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
 using System.Numerics;
 using System.Text;
 
@@ -30,7 +25,7 @@ namespace GraphixLang.Interpreter
         private int _operationCount = 0;
         private readonly string _baseDir;
 
-        // Environment object to store images, variables and other data
+        
         private class ImageData
         {
             public Image Image { get; set; }
@@ -59,24 +54,24 @@ namespace GraphixLang.Interpreter
             }
         }
 
-        // Resolve relative paths correctly
+        
         private string ResolvePath(string path)
         {
             if (Path.IsPathRooted(path))
                 return Path.GetFullPath(path);
                 
-            // Use Path.GetFullPath to correctly handle "../" and "./" in paths
+            
             return Path.GetFullPath(Path.Combine(_baseDir, path));
         }
 
-        // Find all image files in a directory
+        
         private IEnumerable<string> GetImageFilesInDirectory(string path)
         {
             string[] extensions = { "*.png", "*.jpg", "*.jpeg", "*.webp", "*.tiff", "*.bmp" };
             return extensions.SelectMany(ext => System.IO.Directory.GetFiles(path, ext));
         }
 
-        // Get encoder for a specific file format
+        
         private IImageEncoder GetEncoderFromExtension(string extension)
         {
             return extension.ToLower() switch
@@ -90,7 +85,7 @@ namespace GraphixLang.Interpreter
             };
         }
 
-        // Sanitize filenames to be valid across operating systems
+        
         private string SanitizeFilename(string filename)
         {
             char[] invalidChars = Path.GetInvalidFileNameChars();
@@ -118,10 +113,10 @@ namespace GraphixLang.Interpreter
 
         public void Visit(BatchDeclarationNode node)
         {
-            // Evaluate batch expression
+            
             var result = EvaluateExpression(node.Expression, true);
             
-            // Handle different result types - ensure we always get a List<string>
+            
             List<string> paths;
             if (result is List<string> pathList)
             {
@@ -137,7 +132,7 @@ namespace GraphixLang.Interpreter
                 Console.WriteLine($"Warning: Batch expression for {node.Identifier} did not evaluate to a valid path or paths");
             }
 
-            // Resolve all paths relative to base directory
+            
             var resolvedPaths = paths.Select(p => ResolvePath(p)).ToList();
             
             _environment[node.Identifier] = resolvedPaths;
@@ -154,7 +149,7 @@ namespace GraphixLang.Interpreter
             if (!(batchObj is List<string> batch))
                 throw new Exception($"Batch {node.BatchIdentifier} is not a valid batch (got {batchObj?.GetType()?.Name})");
 
-            // Ensure export directory exists
+            
             string exportPath = ResolvePath(node.ExportPath);
             System.IO.Directory.CreateDirectory(exportPath);
 
@@ -164,7 +159,7 @@ namespace GraphixLang.Interpreter
                 Console.WriteLine($"  - {path}");
             }
 
-            // Process all image files in the batch directories
+            
             List<string> imageFiles = new List<string>();
             foreach (string batchPath in batch)
             {
@@ -182,12 +177,12 @@ namespace GraphixLang.Interpreter
 
             Console.WriteLine($"Total images to process: {imageFiles.Count}");
             
-            // Process each image
+            
             foreach (string imgPath in imageFiles)
             {
                 try
                 {
-                    // Load image and store in environment
+                    
                     using (var img = Image.Load(imgPath))
                     {
                         var imgData = new ImageData
@@ -200,16 +195,16 @@ namespace GraphixLang.Interpreter
                         _environment[node.VarIdentifier] = imgData;
                         _variableTypes[node.VarIdentifier] = typeof(ImageData);
 
-                        // Process the body
+                        
                         Visit(node.Body);
 
-                        // Export the image
+                        
                         ExportImage(node.VarIdentifier, exportPath, true);
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Log the error but continue with the next image
+                    
                     Console.WriteLine($"Error processing {imgPath}: {ex.Message}");
                 }
             }
@@ -217,7 +212,7 @@ namespace GraphixLang.Interpreter
 
         public void Visit(VariableDeclarationNode node)
         {
-            // Handle variable declaration and initialization
+            
             if (node.Initializer != null)
             {
                 var value = EvaluateExpression(node.Initializer);
@@ -226,7 +221,7 @@ namespace GraphixLang.Interpreter
             }
             else
             {
-                // Default values based on type
+                
                 switch (node.Type)
                 {
                     case GraphixLang.Lexer.TokenType.TYPE_INT:
@@ -251,7 +246,7 @@ namespace GraphixLang.Interpreter
 
         public void Visit(ImageDeclarationNode node)
         {
-            // Load an image from file
+            
             string resolvedPath = ResolvePath(node.Path);
             
             if (!File.Exists(resolvedPath))
@@ -292,7 +287,7 @@ namespace GraphixLang.Interpreter
             }
             else
             {
-                // Check ELIF branches
+                
                 bool elifMatched = false;
                 foreach (var elifBranch in node.ElifBranches)
                 {
@@ -304,7 +299,7 @@ namespace GraphixLang.Interpreter
                     }
                 }
 
-                // If no ELIF matched, try ELSE
+                
                 if (!elifMatched && node.ElseBranch != null)
                 {
                     Visit(node.ElseBranch);
@@ -322,7 +317,7 @@ namespace GraphixLang.Interpreter
             if (!TryGetImage(node.ImageIdentifier, out var imgData))
                 throw new Exception($"Unknown image variable: {node.ImageIdentifier}");
 
-            // Apply the filter based on type
+            
             switch (node.FilterType)
             {
                 case GraphixLang.Lexer.TokenType.SEPIA:
@@ -364,11 +359,11 @@ namespace GraphixLang.Interpreter
             int width = Convert.ToInt32(EvaluateExpression(node.Width));
             int height = Convert.ToInt32(EvaluateExpression(node.Height));
             
-            // Calculate centered crop rectangle
+            
             int x = Math.Max(0, (imgData.Image.Width - width) / 2);
             int y = Math.Max(0, (imgData.Image.Height - height) / 2);
             
-            // Ensure width and height don't exceed image dimensions
+            
             width = Math.Min(width, imgData.Image.Width - x);
             height = Math.Min(height, imgData.Image.Height - y);
 
@@ -397,7 +392,7 @@ namespace GraphixLang.Interpreter
             if (!TryGetImage(node.ImageIdentifier, out var imgData))
                 throw new Exception($"Unknown image variable: {node.ImageIdentifier}");
 
-            // ImageSharp doesn't have a direct hue adjustment, so we'll use a custom implementation
+            
             float hue = node.HueValue / 360.0f;
             imgData.Image.Mutate(x => x.Hue(hue));
         }
@@ -407,7 +402,7 @@ namespace GraphixLang.Interpreter
             if (!TryGetImage(node.ImageIdentifier, out var imgData))
                 throw new Exception($"Unknown image variable: {node.ImageIdentifier}");
 
-            // Convert from 0-200 scale to ImageSharp's scale (typically 0-1 or -1 to 1)
+            
             float factor = node.Value / 100.0f;
             imgData.Image.Mutate(x => x.Brightness(factor));
         }
@@ -425,13 +420,13 @@ namespace GraphixLang.Interpreter
             if (!TryGetImage(node.ImageIdentifier, out var imgData))
                 throw new Exception($"Unknown image variable: {node.ImageIdentifier}");
 
-            // Create a proper quantizer with the specified number of colors
+            
             var quantizer = new WuQuantizer(new QuantizerOptions
             {
                 MaxColors = node.Colors
             });
             
-            // Quantize the image to the specified number of colors
+            
             imgData.Image.Mutate(x => x.Quantize(quantizer));
         }
         
@@ -441,8 +436,8 @@ namespace GraphixLang.Interpreter
             if (!TryGetImage(node.ImageIdentifier, out var imgData))
                 throw new Exception($"Unknown image variable: {node.ImageIdentifier}");
 
-            // Compression is handled during save operation
-            // Store the quality value in metadata for later use
+            
+            
             imgData.Metadata["CompressionQuality"] = node.Quality;
         }
 
@@ -462,12 +457,12 @@ namespace GraphixLang.Interpreter
 
             if (node.IsAspectRatioMode)
             {
-                // Parse aspect ratio from token
+                
                 string aspectRatioStr = node.AspectRatio.ToString().Replace("RATIO_", "").Replace("_", ":");
                 string[] parts = aspectRatioStr.Split(':');
                 if (parts.Length == 2 && int.TryParse(parts[0], out int ratioWidth) && int.TryParse(parts[1], out int ratioHeight))
                 {
-                    // Calculate new dimensions based on aspect ratio
+                    
                     newWidth = currentWidth;
                     newHeight = (currentWidth * ratioHeight) / ratioWidth;
                     
@@ -483,7 +478,7 @@ namespace GraphixLang.Interpreter
             }
             else
             {
-                // Resolution mode
+                
                 newWidth = Convert.ToInt32(EvaluateExpression(node.Width));
                 newHeight = Convert.ToInt32(EvaluateExpression(node.Height));
                 options.Size = new Size(newWidth, newHeight);
@@ -496,8 +491,8 @@ namespace GraphixLang.Interpreter
             if (!TryGetImage(node.ImageIdentifier, out var imgData))
                 throw new Exception($"Unknown image variable: {node.ImageIdentifier}");
 
-            // Update the filename extension but don't actually convert yet
-            // (conversion happens during save)
+            
+            
             string baseFilename = Path.GetFileNameWithoutExtension(imgData.Filename);
             string newExtension = "." + node.TargetFormat.ToString().ToLower();
             imgData.Filename = baseFilename + newExtension;
@@ -510,7 +505,7 @@ namespace GraphixLang.Interpreter
 
             try
             {
-                // Parse color
+                
                 Color color;
                 if (node.IsHexColor)
                 {
@@ -534,7 +529,7 @@ namespace GraphixLang.Interpreter
                     }
                 }
 
-                // Try to load a font
+                
                 Font font;
                 try
                 {
@@ -549,7 +544,7 @@ namespace GraphixLang.Interpreter
                     font = fontFamily.CreateFont(Math.Min(imgData.Image.Width, imgData.Image.Height) / 20);
                 }
 
-                // Add text watermark
+                
                 imgData.Image.Mutate(x => x.DrawText(node.Text, font, color, new PointF(10, 10)));
             }
             catch (Exception ex)
@@ -566,21 +561,21 @@ namespace GraphixLang.Interpreter
             if (!TryGetImage(node.WatermarkImageIdentifier, out var watermarkImgData))
                 throw new Exception($"Unknown watermark image variable: {node.WatermarkImageIdentifier}");
 
-            // Calculate watermark size (1/4 of the target image width)
+            
             int watermarkWidth = targetImgData.Image.Width / 4;
             int watermarkHeight = (int)(watermarkImgData.Image.Height * ((float)watermarkWidth / watermarkImgData.Image.Width));
             
-            // Position in bottom right
+            
             int x = targetImgData.Image.Width - watermarkWidth - 10;
             int y = targetImgData.Image.Height - watermarkHeight - 10;
             
-            // Create a resized watermark
+            
             using var resizedWatermark = watermarkImgData.Image.Clone(i => i.Resize(watermarkWidth, watermarkHeight));
             
-            // Apply transparency
+            
             float opacity = node.Transparency / 255.0f;
             
-            // Composite the images
+            
             targetImgData.Image.Mutate(i => i.DrawImage(resizedWatermark, new Point(x, y), opacity));
         }
 
@@ -591,19 +586,19 @@ namespace GraphixLang.Interpreter
 
             if (node.StripAll)
             {
-                // Clear all metadata
+                
                 imgData.Image.Metadata.ExifProfile = null;
                 imgData.Image.Metadata.IptcProfile = null;
                 imgData.Image.Metadata.XmpProfile = null;
             }
             else
             {
-                // Remove specific metadata
+                
                 if (imgData.Image.Metadata.ExifProfile != null)
                 {
                     foreach (var metadataType in node.MetadataTypes)
                     {
-                        // Map token types to EXIF tags
+                        
                         switch (metadataType)
                         {
                             case GraphixLang.Lexer.TokenType.GPS:
@@ -641,21 +636,21 @@ namespace GraphixLang.Interpreter
                     imgData.Image.Metadata.ExifProfile.SetValue(ExifTag.UserComment, node.Value);
                     break;
                 case GraphixLang.Lexer.TokenType.TAGS:
-                    // Add support for tags using XPKeywords tag
+                    
                     imgData.Image.Metadata.ExifProfile.SetValue(ExifTag.XPKeywords, node.Value);
                     
-                    // Also add as IPTC Keywords which is more standard for tags
+                    
                     if (imgData.Image.Metadata.IptcProfile == null)
                         imgData.Image.Metadata.IptcProfile = new SixLabors.ImageSharp.Metadata.Profiles.Iptc.IptcProfile();
                         
-                    // Split tags by comma and add as keywords
+                    
                     var keywords = node.Value.Split(',').Select(t => t.Trim()).ToArray();
                     foreach (var keyword in keywords)
                     {
                         imgData.Image.Metadata.IptcProfile.SetValue(SixLabors.ImageSharp.Metadata.Profiles.Iptc.IptcTag.Keywords, keyword);
                     }
                     
-                    // Log that we added the tags
+                    
                     Console.WriteLine($"Added tags to {imgData.Filename}: {node.Value}");
                     break;
             }
@@ -707,11 +702,11 @@ namespace GraphixLang.Interpreter
             if (!TryGetImage(node.ImageIdentifier, out var imgData))
                 throw new Exception($"Unknown image variable: {node.ImageIdentifier}");
 
-            // Store optimization settings for later use when saving
+            
             imgData.Metadata["WebOptimizeMode"] = node.IsLossless ? "LOSSLESS" : "LOSSY";
             imgData.Metadata["WebOptimizeQuality"] = node.IsLossless ? 100 : node.Quality;
             
-            // Update file extension if needed
+            
             string baseFilename = Path.GetFileNameWithoutExtension(imgData.Filename);
             string extension = node.IsLossless ? ".png" : ".jpg";
             imgData.Filename = baseFilename + extension;
@@ -724,7 +719,7 @@ namespace GraphixLang.Interpreter
 
             float opacity = node.Value / 100.0f;
             
-            // Convert to RGBA if needed
+            
             if (imgData.Image.PixelType.AlphaRepresentation == PixelAlphaRepresentation.None)
             {
                 var temp = imgData.Image.CloneAs<Rgba32>();
@@ -732,7 +727,7 @@ namespace GraphixLang.Interpreter
                 imgData.Image = temp;
             }
             
-            // Apply opacity
+            
             imgData.Image.Mutate(x => x.Opacity(opacity));
         }
 
@@ -742,7 +737,7 @@ namespace GraphixLang.Interpreter
                 throw new Exception($"Unknown image variable: {node.ImageIdentifier}");
 
             float noiseLevel = node.Value / 100.0f;
-            // Use a custom noise implementation since ImageSharp doesn't have a direct noise filter
+            
             Random random = new Random();
             imgData.Image.Mutate(x => x.ProcessPixelRowsAsVector4((span, point) => 
             {
@@ -772,7 +767,7 @@ namespace GraphixLang.Interpreter
             if (!TryGetImage(node.ImageIdentifier, out var imgData))
                 throw new Exception($"Unknown image variable: {node.ImageIdentifier}");
 
-            int pixelSize = (101 - node.Value) / 2; // Invert scale
+            int pixelSize = (101 - node.Value) / 2; 
             if (pixelSize <= 0) pixelSize = 1;
             
             imgData.Image.Mutate(x => x.Pixelate(pixelSize));
@@ -780,37 +775,37 @@ namespace GraphixLang.Interpreter
 
         public void Visit(RenameTermNode node)
         {
-            // No action needed here as this is processed in Visit(RenameNode)
+            
         }
 
         public void Visit(ElifBranchNode node)
         {
-            // No action needed here as this is processed in Visit(IfNode)
+            
         }
 
         public void Visit(BinaryExpressionNode node)
         {
-            // This is handled by EvaluateExpression
+            
         }
 
         public void Visit(LiteralNode node)
         {
-            // This is handled by EvaluateExpression
+            
         }
 
         public void Visit(VariableReferenceNode node)
         {
-            // This is handled by EvaluateExpression
+            
         }
 
         public void Visit(MetadataNode node)
         {
-            // This is handled by EvaluateExpression
+            
         }
 
         public void Visit(BatchExpressionNode node)
         {
-            // This is handled by EvaluateExpression
+            
         }
 
         #endregion
@@ -833,7 +828,7 @@ namespace GraphixLang.Interpreter
         {
             foreach (var tag in tags)
             {
-                // RemoveValue is safe to call even if the tag doesn't exist
+                
                 profile.RemoveValue(tag);
             }
         }
@@ -864,12 +859,12 @@ namespace GraphixLang.Interpreter
                     case GraphixLang.Lexer.TokenType.FNAME:
                         return Path.GetFileNameWithoutExtension(imgData.Filename);
                     case GraphixLang.Lexer.TokenType.FSIZE:
-                        return new FileInfo(imgData.Path).Length / 1024.0; // Size in KB
+                        return new FileInfo(imgData.Path).Length / 1024.0; 
                 }
             }
             else if (node is BinaryExpressionNode binary)
             {
-                // Special handling for batch expressions with the + operator
+                
                 if (binary.Operator == GraphixLang.Lexer.TokenType.PLUS && isBatchExpression)
                 {
                     var left = EvaluateExpression(binary.Left, true);
@@ -877,13 +872,13 @@ namespace GraphixLang.Interpreter
                     
                     List<string> result = new List<string>();
                     
-                    // Convert left side to List<string>
+                    
                     if (left is List<string> leftList)
                         result.AddRange(leftList);
                     else if (left is string leftStr)
                         result.Add(leftStr);
                     
-                    // Convert right side to List<string>
+                    
                     if (right is List<string> rightList)
                         result.AddRange(rightList);
                     else if (right is string rightStr)
@@ -892,18 +887,18 @@ namespace GraphixLang.Interpreter
                     return result;
                 }
                 
-                // Normal expression evaluation
+                
                 var leftValue = EvaluateExpression(binary.Left);
                 var rightValue = EvaluateExpression(binary.Right);
 
-                // Special case for string concatenation in non-batch expressions
+                
                 if (binary.Operator == GraphixLang.Lexer.TokenType.PLUS && 
                     (leftValue is string || rightValue is string))
                 {
                     return leftValue.ToString() + rightValue.ToString();
                 }
 
-                // Convert to common numeric type
+                
                 if (TryConvertToNumeric(leftValue, out dynamic leftNum) && 
                     TryConvertToNumeric(rightValue, out dynamic rightNum))
                 {
@@ -917,7 +912,7 @@ namespace GraphixLang.Interpreter
                             return leftNum * rightNum;
                         case GraphixLang.Lexer.TokenType.DIVIDE:
                             return leftNum / rightNum;
-                        // Comparison operators
+                        
                         case GraphixLang.Lexer.TokenType.EQUAL:
                             return leftNum == rightNum;
                         case GraphixLang.Lexer.TokenType.NOT_EQUAL:
@@ -933,7 +928,7 @@ namespace GraphixLang.Interpreter
                     }
                 }
                 
-                // Fall back to regular comparisons for non-numeric types
+                
                 switch (binary.Operator)
                 {
                     case GraphixLang.Lexer.TokenType.EQUAL:
@@ -946,7 +941,7 @@ namespace GraphixLang.Interpreter
             }
             else if (node is BatchExpressionNode batchExpr)
             {
-                // Handle specific batch expression node
+                
                 return EvaluateExpression(batchExpr, true);
             }
             
@@ -959,7 +954,7 @@ namespace GraphixLang.Interpreter
             if (result is bool boolResult)
                 return boolResult;
                 
-            // Try to convert to boolean
+            
             if (result is int intResult)
                 return intResult != 0;
             if (result is double doubleResult)
@@ -995,32 +990,32 @@ namespace GraphixLang.Interpreter
                 
             string resolvedPath = ResolvePath(destinationPath);
             
-            // Determine if destination is a directory or file
+            
             if (System.IO.Directory.Exists(resolvedPath) || resolvedPath.EndsWith(Path.DirectorySeparatorChar))
             {
-                // It's a directory, ensure it exists
+                
                 System.IO.Directory.CreateDirectory(resolvedPath);
-                // Append the filename
+                
                 resolvedPath = Path.Combine(resolvedPath, imgData.Filename);
             }
             else
             {
-                // Ensure parent directory exists
+                
                 string parentDir = Path.GetDirectoryName(resolvedPath);
                 if (!string.IsNullOrEmpty(parentDir))
                     System.IO.Directory.CreateDirectory(parentDir);
             }
             
-            // Determine encoder
+            
             string extension = Path.GetExtension(resolvedPath).ToLower();
             IImageEncoder encoder;
             
-            // Create appropriate encoder with settings
+            
             if (extension == ".png")
             {
                 PngCompressionLevel compressionLevel = PngCompressionLevel.DefaultCompression;
                 
-                // Apply compression settings if specified
+                
                 if (imgData.Metadata.TryGetValue("WebOptimizeMode", out var modeObj) && 
                     modeObj is string mode && mode == "LOSSLESS")
                 {
@@ -1029,21 +1024,21 @@ namespace GraphixLang.Interpreter
                 
                 encoder = new PngEncoder {
                     CompressionLevel = compressionLevel,
-                    // Ensure all chunks including metadata are saved
-                    ChunkFilter = PngChunkFilter.None // 'None' means no filtering applied, so all chunks are included
+                    
+                    ChunkFilter = PngChunkFilter.None 
                 };
             }
             else if (extension == ".jpg" || extension == ".jpeg")
             {
-                // For JPEG, get quality settings first
-                int jpegQuality = 90; // Default quality
+                
+                int jpegQuality = 90; 
                 
                 if (imgData.Metadata.TryGetValue("CompressionQuality", out var qualityObj) && qualityObj is int quality)
                     jpegQuality = quality;
                 else if (imgData.Metadata.TryGetValue("WebOptimizeQuality", out var webQualityObj) && webQualityObj is int webQuality)
                     jpegQuality = webQuality;
                 
-                // Create encoder with quality set during initialization
+                
                 encoder = new JpegEncoder { Quality = jpegQuality };
             }
             else
@@ -1051,9 +1046,9 @@ namespace GraphixLang.Interpreter
                 encoder = GetEncoderFromExtension(extension);
             }
             
-            // We've already set ChunkFilter for PngEncoder during initialization
             
-            // Log metadata information for debugging
+            
+            
             if (imgData.Image.Metadata.ExifProfile != null)
             {
                 Console.WriteLine($"Saving image with {imgData.Image.Metadata.ExifProfile.Values.Count()} EXIF tags");
@@ -1066,10 +1061,10 @@ namespace GraphixLang.Interpreter
                 Console.WriteLine($"Image has IPTC profile with data");
             }
             
-            // Save the image
+            
             imgData.Image.Save(resolvedPath, encoder);
             
-            // Delete original if specified and exists
+            
             if (!keepOriginal && File.Exists(imgData.Path))
             {
                 try
@@ -1086,10 +1081,10 @@ namespace GraphixLang.Interpreter
         #endregion
     }
     
-    // Extension methods for ImageProcessingExtensions
+    
     public static class ImageProcessingExtensions
     {
-        // Custom Hue adjustment since ImageSharp doesn't provide one directly
+        
         public static IImageProcessingContext Hue(this IImageProcessingContext context, float hue)
         {
             return context.ProcessPixelRowsAsVector4((span, point) =>
@@ -1107,20 +1102,20 @@ namespace GraphixLang.Interpreter
             });
         }
         
-// RGB to HSV conversion
+
 private static void RgbToHsv(float r, float g, float b, out float h, out float s, out float v)
 {
     float max = Math.Max(r, Math.Max(g, b));
     float min = Math.Min(r, Math.Min(g, b));
     float delta = max - min;
     
-    // Value
+    
     v = max;
     
-    // Saturation
+    
     s = max == 0 ? 0 : delta / max;
     
-    // Hue
+    
     if (delta == 0)
         h = 0;
     else if (max == r)
@@ -1136,7 +1131,7 @@ private static void RgbToHsv(float r, float g, float b, out float h, out float s
         h += 1.0f;
 }
 
-// HSV to RGB conversion
+
 private static void HsvToRgb(float h, float s, float v, out float r, out float g, out float b)
 {
     if (s == 0)

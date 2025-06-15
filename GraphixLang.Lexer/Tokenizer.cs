@@ -10,7 +10,7 @@ public class Tokenizer
     private int _line;
     private int _column;
 
-    // Regex Patterns
+    
     private static readonly Regex NumberRegex = new Regex(@"(\d+\.\d+|\d+p|\d+)", RegexOptions.Compiled);
 
     public Tokenizer(string input)
@@ -29,24 +29,24 @@ public class Tokenizer
         {
             char current = _input[_position];
 
-            // Skip comments
+            
             if (current == '/' && _position + 1 < _input.Length && _input[_position + 1] == '/')
             {
-                // Skip to the end of the line
+                
                 while (_position < _input.Length && _input[_position] != '\n' && _input[_position] != '\r')
                 {
                     _position++;
                     _column++;
                 }
-                // Now we're at the end of the line or EOF, continue to the next iteration
-                // which will handle the newline character(s) or EOF
+                
+                
                 continue;
             }
 
-            // Skip whitespaces (existing code)
+            
             if (char.IsWhiteSpace(current))
             {
-                // Checks for line feed encounters
+                
                 if (current == '\n')
                 {
                     _line++;
@@ -54,17 +54,17 @@ public class Tokenizer
                 }
                 else if (current == '\r')
                 {
-                    // Handle '\r\n' Windows and carriage return old Mac
+                    
                     if (_position + 1 < _input.Length && _input[_position + 1] == '\n')
                     {
-                        _position++; // Skip the '\n' in '\r\n'
+                        _position++; 
                     }
                     _line++;
                     _column = 1;
                 }
                 else
                 {
-                    // In case of spaces or other stuff
+                    
                     _column++;
                 }
                 _position++;
@@ -91,7 +91,7 @@ public class Tokenizer
     {
         char current = _input[_position];
 
-        // Special case for aspect ratios - check this first
+        
         if (char.IsDigit(current))
         {
             Token? ratioToken = TryMatchAspectRatio();
@@ -99,7 +99,7 @@ public class Tokenizer
                 return ratioToken;
         }
 
-        // Tokenizing symbols
+        
         if(current == ')') return Advance(TokenType.CLOSE_P, ")");
         if(current == '(') return Advance(TokenType.OPEN_P, "(");
         if(current == ',') return Advance(TokenType.COMMA, ",");
@@ -135,20 +135,20 @@ public class Tokenizer
             return null;
         }
         
-        // Tokenizing reserved words
+        
         if (char.IsLetter(current) || current == '$' || current == '#')
         {
             string word = ReadWord();
             return CreateWordToken(word);
         }
 
-        // Tokenizing numerical values
+        
         if (char.IsDigit(current))
         {
             return MatchNumber();
         }
 
-        // Tokenizing strings
+        
         if (current == '"')
         {
             return ReadString();
@@ -170,17 +170,17 @@ public class Tokenizer
             }
         }
         
-        // No match :(
+        
         return null;
     }
 
     private Token? TryMatchAspectRatio()
     {
-        // Store the current position to restore if not a match
+        
         int startPosition = _position;
         int startColumn = _column;
         
-        // Read potential first number
+        
         StringBuilder sb = new StringBuilder();
         while (_position < _input.Length && char.IsDigit(_input[_position]))
         {
@@ -189,14 +189,14 @@ public class Tokenizer
             _column++;
         }
         
-        // Check for colon
+        
         if (_position < _input.Length && _input[_position] == ':')
         {
             sb.Append(_input[_position]);
             _position++;
             _column++;
             
-            // Read second number
+            
             while (_position < _input.Length && char.IsDigit(_input[_position]))
             {
                 sb.Append(_input[_position]);
@@ -206,7 +206,7 @@ public class Tokenizer
             
             string ratio = sb.ToString();
             
-            // Check if it's one of our supported ratios
+            
             switch (ratio)
             {
                 case "16:9": return new Token(TokenType.RATIO_16_9, ratio, _line, startColumn);
@@ -225,7 +225,7 @@ public class Tokenizer
             }
         }
         
-        // No match, restore position and column
+        
         _position = startPosition;
         _column = startColumn;
         return null;
@@ -245,26 +245,26 @@ public class Tokenizer
         return new Token(type, val , _line, _column - 2);
     }
     
-    // For having a look at the next char
+    
     private char Peek()
     {
         return _position + 1 < _input.Length ? _input[_position + 1] : '\0';
     }
 
-    // Reads the entire word
+    
     private string ReadWord()
     {
-        // To keep track where the word started
+        
         int start = _position;
 
-        // Special handling for aspect ratios which can contain ':'
+        
         bool foundColon = false;
         
         while(_position < _input.Length && 
             (char.IsLetterOrDigit(_input[_position]) || 
             _input[_position] == '$' || 
             _input[_position] == '#' ||
-            // Allow colon for aspect ratios like "16:9"
+            
             (_input[_position] == ':' && !foundColon && _position > start && char.IsDigit(_input[_position - 1]))))
         {
             if (_input[_position] == ':')
@@ -277,10 +277,10 @@ public class Tokenizer
         return _input.Substring(start, _position - start);
     }
 
-    // Tokenizes the read word
+    
     private Token CreateWordToken(string word)
     {
-        // Checks if reserved word
+        
         switch(word.ToUpper())
         {
             case "INT": return new Token(TokenType.TYPE_INT, word, _line, _column - word.Length);
@@ -355,24 +355,24 @@ public class Tokenizer
             case "QUANTIZE": return new Token(TokenType.QUANTIZE, word, _line, _column - word.Length);
         }
 
-        // Checks if identifiers
+        
         if (word.First() == '$') return new Token(TokenType.VAR_IDENTIFIER, word, _line, _column - word.Length);
         if (word.First() == '#') return new Token(TokenType.BATCH_IDENTIFIER, word, _line, _column - word.Length);
 
         throw new Exception(string.Format("Unexpected word '{0}', at line {1}, column {2}.", word, _line, _column - word.Length));
     }
 
-    // Tokenizes the numbers
+    
     private Token MatchNumber()
     {
         Match match = NumberRegex.Match(_input, _position);
-        if (match.Success && match.Index == _position) // Ensure the match starts at the current position
+        if (match.Success && match.Index == _position) 
         {
             string value = match.Value;
-            _position += value.Length; // Advance the position
-            _column += value.Length;   // Update the column
+            _position += value.Length; 
+            _column += value.Length;   
 
-            // Determine the token type based on the matched value
+            
             if (value.Last() == 'p') return new Token(TokenType.PXLS_VALUE, value, _line, _column - value.Length);
             if (value.Contains(".")) return new Token(TokenType.DBL_VALUE, value, _line, _column - value.Length);
             return new Token(TokenType.INT_VALUE, value, _line, _column - value.Length);
@@ -381,10 +381,10 @@ public class Tokenizer
         throw new Exception(string.Format("Unexpected num value '{0}', at line {1}, column {2}.", match, _line, _column - match.Length));
     }
 
-    // Strings tokenization
+    
     private Token ReadString()
     {
-        _position++; // Skip opening quote
+        _position++; 
         _column++;
         int start = _position;
         while (_position < _input.Length && _input[_position] != '"')
@@ -393,19 +393,19 @@ public class Tokenizer
             _column++;
         }
         string val = _input.Substring(start, _position - start);
-        _position++; // Skip closing quote
+        _position++; 
         _column++;
         return new Token(TokenType.STR_VALUE, $"\"{val}\"", _line, _column - val.Length - 2);
     }
 
     private Token ReadHexColor()
     {
-        // Starting position is at '~'
+        
         int start = _position;
-        _position += 2; // Skip '~H'
+        _position += 2; 
         _column += 2;
         
-        // Count the hex digits
+        
         int digitCount = 0;
         while (_position < _input.Length && 
             ((_input[_position] >= '0' && _input[_position] <= '9') || 
@@ -417,13 +417,13 @@ public class Tokenizer
             digitCount++;
         }
         
-        // Enforce exactly 6 or 8 hex digits
+        
         if (digitCount != 6 && digitCount != 8)
         {
             throw new Exception($"Hex color must have exactly 6 digits (RRGGBB) or 8 digits (RRGGBBAA) at line {_line}, column {_column}");
         }
         
-        // Expect closing '~'
+        
         if (_position < _input.Length && _input[_position] == '~')
         {
             _position++;
@@ -436,12 +436,12 @@ public class Tokenizer
 
     private Token ReadRGBColor()
     {
-        // Starting position is at '~'
+        
         int start = _position;
-        _position += 2; // Skip '~R'
+        _position += 2; 
         _column += 2;
         
-        // Count the digits
+        
         int digitCount = 0;
         while (_position < _input.Length && _input[_position] >= '0' && _input[_position] <= '9')
         {
@@ -450,13 +450,13 @@ public class Tokenizer
             digitCount++;
         }
         
-        // Enforce exactly 9 or 12 digits
+        
         if (digitCount != 9 && digitCount != 12)
         {
             throw new Exception($"RGB color must have exactly 9 digits (RRRGGGBBB) or 12 digits (RRRGGGBBBAAA) at line {_line}, column {_column}");
         }
         
-        // Expect closing '~'
+        
         if (_position < _input.Length && _input[_position] == '~')
         {
             _position++;

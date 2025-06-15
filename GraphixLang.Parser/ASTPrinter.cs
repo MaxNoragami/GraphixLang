@@ -71,7 +71,7 @@ public class ASTPrinter : IASTVisitor
         AppendIndent();
         _sb.Append($"BatchDeclaration: {node.Identifier} = ");
         
-        // Instead of directly accessing node.Path, visit the Expression
+        
         node.Expression.Accept(this);
         
         _sb.AppendLine();

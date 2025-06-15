@@ -116,14 +116,14 @@ public class Parser
                 }
                 throw new SyntaxError($"Unexpected token after ADD at line {CurrentToken.Line}, column {CurrentToken.Column}"); 
             case TokenType.SET:
-                // Need to look ahead to determine which operation
+                
                 if (_position + 1 < _tokens.Count && _tokens[_position + 1].Type == TokenType.VAR_IDENTIFIER)
                 {
                     string varIdentifier = _tokens[_position + 1].Value;
                     
                     if (_position + 2 < _tokens.Count)
                     {
-                        // Check the token after the variable identifier to determine operation type
+                        
                         TokenType tokenType = _tokens[_position + 2].Type;
                         switch (tokenType)
                         {
@@ -142,7 +142,7 @@ public class Parser
                             case TokenType.PIXELATE:
                                 return ParsePixelateStatement();
                             default:
-                                return ParseSetStatement(); // Filter operation
+                                return ParseSetStatement(); 
                         }
                     }
                 }
@@ -181,7 +181,7 @@ public class Parser
         return new BatchDeclarationNode
         {
             Identifier = batchIdentifier,
-            Expression = expression  // Updated to store the full expression
+            Expression = expression  
         };
     }
 
@@ -197,20 +197,20 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "QUANTIZE");
         
-        // Check that the next token is a valid integer value
+        
         if (CurrentToken.Type != TokenType.INT_VALUE)
         {
             throw new SyntaxError($"Expected an integer value (0-255) for color count at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
-        // Parse the colors value
+        
         int colors = int.Parse(CurrentToken.Value);
         Consume(TokenType.INT_VALUE);
         
-        // Validate that the colors value is in the range 0-255
+        
         if (colors < 0 || colors > 255)
         {
             throw new SyntaxError($"Color count must be between 0 and 255 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -249,7 +249,7 @@ public class Parser
         string path = CurrentToken.Value.Trim('"');
         Consume(TokenType.STR_VALUE);
         
-        // Validate that the path ends with an acceptable image format
+        
         string[] validExtensions = { ".png", ".jpg", ".jpeg", ".webp", ".tiff", ".bmp" };
         bool isValidImagePath = false;
         
@@ -316,7 +316,7 @@ public class Parser
             ImageIdentifier = imageIdentifier
         };
         
-        // Check if ALL or specific metadata types
+        
         if (CurrentToken.Type == TokenType.ALL)
         {
             node.StripAll = true;
@@ -324,7 +324,7 @@ public class Parser
         }
         else
         {
-            // Parse metadata list
+            
             node.StripAll = false;
 
             do
@@ -370,7 +370,7 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Restrict ADD to only specific metadata types
+        
         if (CurrentToken.Type != TokenType.TAGS && 
             CurrentToken.Type != TokenType.TITLE && 
             CurrentToken.Type != TokenType.COPYRIGHT &&
@@ -402,7 +402,7 @@ public class Parser
 
     private bool IsStripableMetadataType(TokenType type)
     {
-        // Cannot strip basic metadata fields
+        
         if (type == TokenType.FNAME || 
             type == TokenType.FSIZE || 
             type == TokenType.FWIDTH || 
@@ -438,7 +438,7 @@ public class Parser
             ImageIdentifier = imageIdentifier
         };
         
-        // Parse the rename expression (a sequence of terms connected by '+')
+        
         node.Terms.Add(ParseRenameTerm());
         
         while (CurrentToken.Type == TokenType.PLUS)
@@ -447,7 +447,7 @@ public class Parser
             node.Terms.Add(ParseRenameTerm());
         }
         
-        // Validate that at least one term contains METADATA FNAME
+        
         bool hasOriginalFilename = false;
         foreach (var term in node.Terms)
         {
@@ -490,7 +490,7 @@ public class Parser
                 termNode.Type = RenameTermType.METADATA;
                 MetadataNode metadata = ParseMetadataExpression();
                 
-                // Ensure only FNAME is used in RENAME operations
+                
                 if (metadata.MetadataType != TokenType.FNAME)
                 {
                     throw new SyntaxError($"Only FNAME metadata can be used in RENAME operations, but got {metadata.MetadataType} at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -536,7 +536,7 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "COMPRESS");
         
         if (CurrentToken.Type != TokenType.INT_VALUE)
@@ -547,7 +547,7 @@ public class Parser
         int quality = int.Parse(CurrentToken.Value);
         Consume(TokenType.INT_VALUE);
         
-        // Validate quality is within 0-100
+        
         if (quality < 0 || quality > 100)
         {
             throw new SyntaxError($"Compression quality must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -574,22 +574,22 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "HUE");
         
         Consume(TokenType.HUE);
         
-        // Check that the next token is a valid integer value
+        
         if (CurrentToken.Type != TokenType.INT_VALUE)
         {
             throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
-        // Parse the hue value
+        
         int hueValue = int.Parse(CurrentToken.Value);
         Consume(TokenType.INT_VALUE);
         
-        // Validate that the hue value is in the range 0-360
+        
         if (hueValue < 0 || hueValue > 360)
         {
             throw new SyntaxError($"Hue value must be between 0 and 360 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -616,13 +616,13 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure the target image identifier is an IMG
+        
         EnsureImageType(imageIdentifier, "WATERMARK");
         
-        // Check if it's a text watermark or image watermark
+        
         if (CurrentToken.Type == TokenType.STR_VALUE)
         {
-            // Text watermark
+            
             string text = CurrentToken.Value.Trim('"');
             Consume(TokenType.STR_VALUE);
             
@@ -658,11 +658,11 @@ public class Parser
         }
         else if (CurrentToken.Type == TokenType.VAR_IDENTIFIER)
         {
-            // Image watermark
+            
             string watermarkImageIdentifier = CurrentToken.Value;
             Consume(TokenType.VAR_IDENTIFIER);
             
-            // Type check: ensure the watermark source is also an IMG
+            
             EnsureImageType(watermarkImageIdentifier, "WATERMARK source");
             
             if (CurrentToken.Type != TokenType.INT_VALUE)
@@ -673,7 +673,7 @@ public class Parser
             int transparency = int.Parse(CurrentToken.Value);
             Consume(TokenType.INT_VALUE);
             
-            // Validate transparency is within 0-255
+            
             if (transparency < 0 || transparency > 255)
             {
                 throw new SyntaxError($"Transparency value must be between 0 and 255 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -719,7 +719,7 @@ public class Parser
         string batchIdentifier = CurrentToken.Value;
         Consume(TokenType.BATCH_IDENTIFIER);
         
-        // Make EXPORT TO mandatory
+        
         if (CurrentToken.Type != TokenType.EXPORT)
         {
             throw new SyntaxError($"Expected EXPORT after batch identifier at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -744,7 +744,7 @@ public class Parser
         
         var body = ParseBlock();
         
-        // Check for EXPORT statements inside the body
+        
         CheckNoExportInBlock(body);
         
         return new ForEachNode
@@ -756,18 +756,18 @@ public class Parser
         };
     }
 
-    // Keep the helper method to check for EXPORT statements
+    
     private void CheckNoExportInBlock(BlockNode block)
     {
         foreach (var statement in block.Statements)
         {
-            // Check if the statement is an ExportNode
+            
             if (statement is ExportNode)
             {
                 throw new SyntaxError($"EXPORT statements are not allowed inside FOREACH blocks. The export destination is already specified in the FOREACH statement.");
             }
             
-            // Recursively check nested blocks
+            
             if (statement is IfNode ifNode)
             {
                 CheckNoExportInBlock(ifNode.ThenBranch);
@@ -798,7 +798,7 @@ public class Parser
         string identifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Store variable type for later type checking
+        
         _variableTypes[identifier] = type;
         
         ExpressionNode initializer = null;
@@ -806,12 +806,12 @@ public class Parser
         {
             Consume(TokenType.ASSIGN);
             
-            // If we're assigning a metadata value, check type compatibility
+            
             if (_position < _tokens.Count && _tokens[_position].Type == TokenType.METADATA)
             {
-                Token metadataToken = _tokens[_position + 2]; // Skip METADATA and identifier to get the metadata type
+                Token metadataToken = _tokens[_position + 2]; 
                 
-                // Check type compatibility
+                
                 if ((metadataToken.Type == TokenType.FSIZE && type != TokenType.TYPE_DBL) ||
                     ((metadataToken.Type == TokenType.FWIDTH || metadataToken.Type == TokenType.FHEIGHT) && type != TokenType.TYPE_INT) ||
                     (metadataToken.Type == TokenType.FNAME && type != TokenType.TYPE_STR))
@@ -833,7 +833,7 @@ public class Parser
         };
     }
 
-    // Helper method to get required type
+    
     private string GetRequiredType(TokenType metadataType)
     {
         if (metadataType == TokenType.FSIZE)
@@ -875,7 +875,7 @@ public class Parser
             ThenBranch = thenBranch
         };
         
-        // Parse optional ELIF branches
+        
         while (_position < _tokens.Count && CurrentToken.Type == TokenType.ELIF)
         {
             Consume(TokenType.ELIF);
@@ -890,7 +890,7 @@ public class Parser
             });
         }
         
-        // Parse optional ELSE branch
+        
         if (_position < _tokens.Count && CurrentToken.Type == TokenType.ELSE)
         {
             Consume(TokenType.ELSE);
@@ -912,10 +912,10 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "SET");
         
-        // Check that the next token is a valid filter type
+        
         if (CurrentToken.Type != TokenType.SHARPEN && 
             CurrentToken.Type != TokenType.NEGATIVE && 
             CurrentToken.Type != TokenType.BW && 
@@ -948,10 +948,10 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "ROTATE");
         
-        // Check that the next token is a valid direction
+        
         if (CurrentToken.Type != TokenType.RIGHT && CurrentToken.Type != TokenType.LEFT)
         {
             throw new SyntaxError($"Expected a direction (RIGHT or LEFT) at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -981,7 +981,7 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "CROP");
         
         Consume(TokenType.OPEN_P);
@@ -1018,7 +1018,7 @@ public class Parser
 
         EnsureImageType(imageIdentifier, "ORIENTATION");
         
-        // Check that the next token is a valid orientation type
+        
         if (CurrentToken.Type != TokenType.LANDSCAPE && CurrentToken.Type != TokenType.PORTRAIT)
         {
             throw new SyntaxError($"Expected an orientation type (LANDSCAPE or PORTRAIT) at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -1052,7 +1052,7 @@ public class Parser
             
             ExpressionNode right = ParseAdditiveExpression();
             
-            // Use the new method to create a binary expression with type checking
+            
             left = CreateBinaryExpression(left, op, right);
         }
         
@@ -1181,7 +1181,7 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Check that the next token is a valid metadata type
+        
         if (CurrentToken.Type != TokenType.FWIDTH && 
             CurrentToken.Type != TokenType.FHEIGHT && 
             CurrentToken.Type != TokenType.FNAME && 
@@ -1286,19 +1286,19 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "CONVERT");
         
         Consume(TokenType.TO);
         
-        // Check for a valid format type
+        
         if (!IsImageFormatToken(CurrentToken.Type))
         {
             throw new SyntaxError($"Expected a valid image format (PNG, JPG, JPEG, WEBP, TIFF, BMP) at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
         TokenType targetFormat = CurrentToken.Type;
-        Consume(); // Consume the format token
+        Consume(); 
         
         Consume(TokenType.EOL);
         
@@ -1336,28 +1336,28 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "RESIZE");
         
         var resizeNode = new ResizeNode
         {
             ImageIdentifier = imageIdentifier,
-            MaintainAspectRatio = true // Default to maintaining aspect ratio
+            MaintainAspectRatio = true 
         };
         
-        // Check if we're using aspect ratio or resolution
+        
         if (IsAspectRatioToken(CurrentToken.Type))
         {
-            // Aspect ratio mode
+            
             resizeNode.IsAspectRatioMode = true;
             resizeNode.AspectRatio = CurrentToken.Type;
-            Consume(); // Consume the aspect ratio token
+            Consume(); 
             
             Consume(TokenType.EOL);
         }
         else if (CurrentToken.Type == TokenType.OPEN_P)
         {
-            // Resolution mode
+            
             resizeNode.IsAspectRatioMode = false;
             Consume(TokenType.OPEN_P);
             
@@ -1369,7 +1369,7 @@ public class Parser
             
             Consume(TokenType.CLOSE_P);
             
-            // Check for optional RATIOFALSE
+            
             if (CurrentToken.Type == TokenType.RATIOFALSE)
             {
                 resizeNode.MaintainAspectRatio = false;
@@ -1416,7 +1416,7 @@ public class Parser
         }
     }
 
-    // Helper method to get type name for error messages
+    
     private string GetTypeName(TokenType type)
     {
         switch (type)
@@ -1475,14 +1475,14 @@ public class Parser
             }
         }
         
-        // For binary expressions, the result type depends on the operation
-        // This is simplified - full type checking would be more complex
+        
+        
         return TokenType.TYPE_INT;
     }
 
     private bool AreCompatibleTypes(TokenType type1, TokenType type2)
     {
-        // Map literal types to their corresponding variable types
+        
         TokenType NormalizeType(TokenType type)
         {
             switch (type)
@@ -1496,22 +1496,22 @@ public class Parser
             }
         }
 
-        // Normalize both types
+        
         TokenType normalizedType1 = NormalizeType(type1);
         TokenType normalizedType2 = NormalizeType(type2);
         
-        // Same normalized type is always compatible
+        
         if (normalizedType1 == normalizedType2)
             return true;
         
-        // Numeric types are compatible with each other
+        
         bool isType1Numeric = normalizedType1 == TokenType.TYPE_INT || normalizedType1 == TokenType.TYPE_DBL || normalizedType1 == TokenType.TYPE_PXLS;
         bool isType2Numeric = normalizedType2 == TokenType.TYPE_INT || normalizedType2 == TokenType.TYPE_DBL || normalizedType2 == TokenType.TYPE_PXLS;
         
         if (isType1Numeric && isType2Numeric)
             return true;
         
-        // Other combinations are incompatible
+        
         return false;
     }
 
@@ -1527,22 +1527,22 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "BRIGHTNESS");
         
         Consume(TokenType.BRIGHTNESS);
         
-        // Check that the next token is a valid integer value
+        
         if (CurrentToken.Type != TokenType.INT_VALUE)
         {
             throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
-        // Parse the brightness value
+        
         int value = int.Parse(CurrentToken.Value);
         Consume(TokenType.INT_VALUE);
         
-        // Validate that the brightness value is in the range 0-200
+        
         if (value < 0 || value > 200)
         {
             throw new SyntaxError($"Brightness value must be between 0 and 200 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -1569,22 +1569,22 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "CONTRAST");
         
         Consume(TokenType.CONTRAST);
         
-        // Check that the next token is a valid integer value
+        
         if (CurrentToken.Type != TokenType.INT_VALUE)
         {
             throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
-        // Parse the contrast value
+        
         int value = int.Parse(CurrentToken.Value);
         Consume(TokenType.INT_VALUE);
         
-        // Validate that the contrast value is in the range 0-200
+        
         if (value < 0 || value > 200)
         {
             throw new SyntaxError($"Contrast value must be between 0 and 200 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -1611,7 +1611,7 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "WEBOPTIMIZE");
         
         var node = new WebOptimizeNode
@@ -1619,7 +1619,7 @@ public class Parser
             ImageIdentifier = imageIdentifier
         };
         
-        // Check optimization mode
+        
         if (CurrentToken.Type == TokenType.LOSSLESS)
         {
             node.IsLossless = true;
@@ -1630,7 +1630,7 @@ public class Parser
             node.IsLossless = false;
             Consume(TokenType.LOSSY);
             
-            // Parse quality value for LOSSY mode
+            
             if (CurrentToken.Type != TokenType.INT_VALUE)
             {
                 throw new SyntaxError($"Expected an integer value (0-100) for lossy quality at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -1639,7 +1639,7 @@ public class Parser
             int quality = int.Parse(CurrentToken.Value);
             Consume(TokenType.INT_VALUE);
             
-            // Validate quality range
+            
             if (quality < 0 || quality > 100)
             {
                 throw new SyntaxError($"Lossy quality value must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -1669,22 +1669,22 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "OPACITY");
         
         Consume(TokenType.OPACITY);
         
-        // Check that the next token is a valid integer value
+        
         if (CurrentToken.Type != TokenType.INT_VALUE)
         {
             throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
-        // Parse the opacity value
+        
         int value = int.Parse(CurrentToken.Value);
         Consume(TokenType.INT_VALUE);
         
-        // Validate that the opacity value is in the range 0-100
+        
         if (value < 0 || value > 100)
         {
             throw new SyntaxError($"Opacity value must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -1711,22 +1711,22 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "NOISE");
         
         Consume(TokenType.NOISE);
         
-        // Check that the next token is a valid integer value
+        
         if (CurrentToken.Type != TokenType.INT_VALUE)
         {
             throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
-        // Parse the noise value
+        
         int value = int.Parse(CurrentToken.Value);
         Consume(TokenType.INT_VALUE);
         
-        // Validate that the noise value is in the range 0-100
+        
         if (value < 0 || value > 100)
         {
             throw new SyntaxError($"Noise value must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -1753,22 +1753,22 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "BLUR");
         
         Consume(TokenType.BLUR);
         
-        // Check that the next token is a valid integer value
+        
         if (CurrentToken.Type != TokenType.INT_VALUE)
         {
             throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
-        // Parse the blur value
+        
         int value = int.Parse(CurrentToken.Value);
         Consume(TokenType.INT_VALUE);
         
-        // Validate that the blur value is in the range 0-100
+        
         if (value < 0 || value > 100)
         {
             throw new SyntaxError($"Blur value must be between 0 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -1795,22 +1795,22 @@ public class Parser
         string imageIdentifier = CurrentToken.Value;
         Consume(TokenType.VAR_IDENTIFIER);
         
-        // Type check: ensure imageIdentifier is an IMG
+        
         EnsureImageType(imageIdentifier, "PIXELATE");
         
         Consume(TokenType.PIXELATE);
         
-        // Check that the next token is a valid integer value
+        
         if (CurrentToken.Type != TokenType.INT_VALUE)
         {
             throw new SyntaxError($"Expected an integer value at line {CurrentToken.Line}, column {CurrentToken.Column}");
         }
         
-        // Parse the pixelate value
+        
         int value = int.Parse(CurrentToken.Value);
         Consume(TokenType.INT_VALUE);
         
-        // Validate that the pixelate value is in the range 1-100
+        
         if (value < 1 || value > 100)
         {
             throw new SyntaxError($"Pixelate value must be between 1 and 100 at line {CurrentToken.Line}, column {CurrentToken.Column}");
@@ -1827,7 +1827,7 @@ public class Parser
 
     private BinaryExpressionNode CreateBinaryExpression(ExpressionNode left, TokenType op, ExpressionNode right)
     {
-        // For comparison operators, verify that the types are compatible
+        
         if (IsComparisonOperator(op))
         {
             TokenType leftType = GetExpressionType(left);
