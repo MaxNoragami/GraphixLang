@@ -8,7 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GraphixLang.Lexer\GraphixLang.Lexer.csproj" />
     <ProjectReference Include="..\GraphixLang.Parser\GraphixLang.Parser.csproj" />
-    <ProjectReference Include="..\GraphixLang.Integration\GraphixLang.Integration.csproj" />
+    <ProjectReference Include="..\GraphixLang.Interpreter\GraphixLang.Interpreter.csproj" />
   </ItemGroup>
 
   <ItemGroup>

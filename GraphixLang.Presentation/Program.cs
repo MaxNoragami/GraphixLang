@@ -1,6 +1,6 @@
 ﻿using GraphixLang.Lexer;
 using ParserNamespace = GraphixLang.Parser;
-using GraphixLang.Integration;
+using GraphixLang.Interpreter;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,12 +11,6 @@ namespace GraphixLang.Presentation
     {
         static void Main(string[] args)
         {
-            // Check if Python dependencies are installed
-            Console.WriteLine("Checking Python dependencies...");
-            var exporter = new AstExporter();
-            string dependencyStatus = exporter.CheckAndInstallDependencies(true);
-            Console.WriteLine(dependencyStatus);
-            
             var testInputDir = Directory.EnumerateFiles("TestInputs");
 
             foreach (var testInputFile in testInputDir)
@@ -46,11 +40,12 @@ namespace GraphixLang.Presentation
                         Console.WriteLine("\nAbstract Syntax Tree:");
                         Console.WriteLine(astString);
 
-                        // Execute using the Python interpreter
-                        Console.WriteLine("\nExecuting using Python interpreter...");
+                        // Execute using the C# interpreter
+                        Console.WriteLine("\nExecuting using C# interpreter...");
                         try
                         {
-                            string result = exporter.ExecuteAst(ast);
+                            var interpreter = new GraphixInterpreter();
+                            string result = interpreter.ExecuteAst(ast);
                             Console.WriteLine("\nExecution result:");
                             Console.WriteLine(result);
                         }

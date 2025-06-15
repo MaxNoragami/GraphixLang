@@ -1,6 +1,6 @@
 {
-    BATCH #myBatch = "/Users/mcittkmims/Documents/images";
-    FOREACH IMG $image IN #myBatch EXPORT TO "/Users/mcittkmims/Documents/processed_photos/"{
+    BATCH #myBatch = "../TestImgs/Input";
+    FOREACH IMG $image IN #myBatch EXPORT TO "../TestImgs/Output"{
         INT $width = 0;
         $width = METADATA $image FWIDTH;
         

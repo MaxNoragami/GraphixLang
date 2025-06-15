@@ -1,0 +1,14 @@
+{
+    BATCH #mybatch = "../TestImgs/Input";
+    IMG $watermark = "../TestImgs/Watermark/watermark.png";
+    FOREACH IMG $img IN #mybatch EXPORT TO "../TestImgs/Output" {
+        ROTATE $img LEFT;
+        INT $width = METADATA $img FWIDTH;
+        IF $width <= 326 {
+            SET $img SEPIA;
+        }
+        //CROP $img (100, 200);
+        WATERMARK $img $watermark 128;
+        COMPRESS $img 80; 
+    }
+}

@@ -131,7 +131,8 @@ public class NoiseNode : ASTNode
 {
     public string ImageIdentifier { get; set; }
     public int Value { get; set; }
-    
+    public float Intensity { get; set; }
+
     public override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -142,7 +143,8 @@ public class BlurNode : ASTNode
 {
     public string ImageIdentifier { get; set; }
     public int Value { get; set; }
-    
+    public float Radius { get; set; }
+
     public override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -468,7 +470,10 @@ public class RenameTermNode : ASTNode
     public RenameTermType Type { get; set; }
     public string StringValue { get; set; }  // For string literals
     public MetadataNode MetadataValue { get; set; }  // For metadata expressions
-    
+    public bool IsReplace { get; set; }
+    public char FromTerm { get; set; }
+    public string ToTerm { get; set; }
+
     public override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
