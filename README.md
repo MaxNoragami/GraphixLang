@@ -1,4 +1,11 @@
-# GraphixLang
+<div align="center">
+  <img src="banner.png" alt="logo">
+
+<hr>
+  <a href="https://marketplace.visualstudio.com/items?itemName=GraphixLang.graphixlang">
+    <img src="https://img.shields.io/visual-studio-marketplace/v/GraphixLang.graphixlang?label=Extension">
+  </a>
+</div>
 
 GraphixLang is a domain-specific language designed for batch image processing and manipulation operations. It provides an intuitive syntax for applying filters, transformations, metadata operations, and exporting images across entire directories with powerful conditional logic and automation features.
 
