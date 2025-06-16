@@ -1,0 +1,3 @@
+[submodule "ExtensionSource"]
+	path = ExtensionSource
+	url = https://github.com/MaxNoragami/GraphixLang-Extension.git
